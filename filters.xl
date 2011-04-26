@@ -1,0 +1,167 @@
+// Filters module definition
+//
+// This exemple module defines the filter primitives
+//
+// Copyright 2010-2011 Taodyne
+
+module_description
+    id "c90d3b0b-a461-48d4-a1e0-db212cd3e1ec"
+    name "Filters"
+    import_name "Filters"
+    description "A module to apply filters"
+    version "1.0"
+
+import RenderToTexture 1.0
+
+// -------------------------------------------------------------------------------------------------------------------
+//   Primitive filters
+// -------------------------------------------------------------------------------------------------------------------
+gaussian nbIter:integer ->
+    /**
+    * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
+    **/
+    CURRENT_ITER := 0
+    MAX_ITER := nbIter
+    do RENDER_CODE -> gaussian_filter
+    iterate_render
+
+mean nbIter:integer ->
+    /**
+    * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
+    **/
+    CURRENT_ITER := 0
+    MAX_ITER := nbIter
+    do RENDER_CODE -> mean_filter
+    iterate_render
+
+emboss nbIter:integer ->
+    /**
+    * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
+    **/
+    CURRENT_ITER := 0
+    MAX_ITER := nbIter
+    do RENDER_CODE -> emboss_filter
+    iterate_render
+
+sharpness nbIter:integer ->
+    /**
+    * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
+    **/
+    CURRENT_ITER := 0
+    MAX_ITER := nbIter
+    do RENDER_CODE -> sharpness_filter
+    iterate_render
+
+laplacian nbIter:integer ->
+    /**
+    * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
+    **/
+    CURRENT_ITER := 0
+    MAX_ITER := nbIter
+    do RENDER_CODE -> laplacian_filter
+    iterate_render
+
+// -------------------------------------------------------------------------------------------------------------------
+//   Convolution filters 3x3
+//   For further informations, see http://www.opengl.org/resources/code/samples/advanced/advanced97/notes/node152.html
+// -------------------------------------------------------------------------------------------------------------------
+gaussian_filter ->
+    /**
+    * Apply a gaussian convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level := 0.0
+    shader_set kernel := (1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 4.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0)
+
+mean_filter ->
+    /**
+    * Apply a mean convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level := 0.0
+    shader_set kernel := (1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0)
+
+emboss_filter ->
+    /**
+    * Apply a embross convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level := 0.5
+    shader_set kernel := (2.0; 0.0; 0.0; 0.0; -1.0; 0.0; 0.0; 0.0; -1.0)
+
+sharpness_filter ->
+    /**
+    * Apply a sharpness convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level := 0.0
+    shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 9.0; -1.0; -1.0; -1.0; -1.0)
+
+laplacian_filter ->
+    /**
+    * Apply a laplacian convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level := 0.5
+    shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 8.0; -1.0; -1.0; -1.0; -1.0)
+
+convolution_shader ->
+    /**
+    * Define a common shader for convolution filters.
+    **/
+    shader_program
+        vertex_shader <<
+            void main()
+            {
+               gl_Position = ftransform();
+               gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+            }
+        >>
+        fragment_shader <<
+            #version 120
+            #define KERNEL_SIZE 9 //Kernel size 3x3
+
+            uniform float level; //Gray level
+            uniform float width; //Texture width
+            uniform float height; //Texture height
+            uniform sampler2D colorMap;
+            uniform float kernel[KERNEL_SIZE]; //Convolution kernel
+
+            vec2 offset[KERNEL_SIZE]; //Convolution offset
+            float step_w = 1/width;
+            float step_h = 1/height;
+
+            void main (void)
+            {
+                int i = 0;
+                vec4 sum = vec4(0.0);
+
+                offset[0] = vec2(-step_w, -step_h);
+                offset[1] = vec2(0.0, -step_h);
+                offset[2] = vec2(step_w, -step_h);
+
+                offset[3] = vec2(-step_w, 0.0);
+                offset[4] = vec2(0.0, 0.0);
+                offset[5] = vec2(step_w, 0.0);
+
+                offset[6] = vec2(-step_w, step_h);
+                offset[7] = vec2(0.0, step_h);
+                offset[8] = vec2(step_w, step_h);
+
+                //Apply filter to the current map
+                for( i=0; i<KERNEL_SIZE; i++ )
+                {
+                    vec4 tmp = texture2D(colorMap, gl_TexCoord[0].st + offset[i]);
+                    sum += tmp * kernel[i];
+                }
+
+                //Add gray level
+                sum += level;
+
+                gl_FragColor = vec4(sum.rgb, 1.0);
+            }
+        >>
+
+    shader_set colorMap := texture
+    shader_set width := TEXTURE_WIDTH
+    shader_set height := TEXTURE_HEIGHT
