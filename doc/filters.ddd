@@ -23,5 +23,8 @@ legend ->
             bold
             text "Filtering"
 
+S -> window_width/1500
+scale S, S, 1.0
+
 legend
 filtering
