@@ -22,8 +22,8 @@ gaussian nbIter:integer ->
     **/
     CURRENT_ITER := 0
     MAX_ITER := nbIter
-    do RENDER_CODE -> gaussian_filter
-    iterate_render
+    FILTER -> gaussian_filter
+    iterate_render FILTER
 
 mean nbIter:integer ->
     /**
@@ -31,8 +31,8 @@ mean nbIter:integer ->
     **/
     CURRENT_ITER := 0
     MAX_ITER := nbIter
-    do RENDER_CODE -> mean_filter
-    iterate_render
+    FILTER -> mean_filter
+    iterate_render FILTER
 
 emboss nbIter:integer ->
     /**
@@ -40,8 +40,8 @@ emboss nbIter:integer ->
     **/
     CURRENT_ITER := 0
     MAX_ITER := nbIter
-    do RENDER_CODE -> emboss_filter
-    iterate_render
+    FILTER -> emboss_filter
+    iterate_render FILTER
 
 sharpness nbIter:integer ->
     /**
@@ -49,8 +49,8 @@ sharpness nbIter:integer ->
     **/
     CURRENT_ITER := 0
     MAX_ITER := nbIter
-    do RENDER_CODE -> sharpness_filter
-    iterate_render
+    FILTER -> sharpness_filter
+    iterate_render FILTER
 
 laplacian nbIter:integer ->
     /**
@@ -58,8 +58,9 @@ laplacian nbIter:integer ->
     **/
     CURRENT_ITER := 0
     MAX_ITER := nbIter
-    do RENDER_CODE -> laplacian_filter
-    iterate_render
+    FILTER -> laplacian_filter
+    iterate_render FILTER
+
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Convolution filters 3x3
@@ -162,6 +163,6 @@ convolution_shader ->
             }
         >>
 
-    shader_set colorMap := texture
+    shader_set colorMap := texture_unit
     shader_set width := TEXTURE_WIDTH
     shader_set height := TEXTURE_HEIGHT
