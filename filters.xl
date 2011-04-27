@@ -16,48 +16,48 @@ import RenderToTexture 1.0
 // -------------------------------------------------------------------------------------------------------------------
 //   Primitive filters
 // -------------------------------------------------------------------------------------------------------------------
-gaussian nbIter:integer ->
+gaussian iter:integer ->
     /**
     * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
     **/
     CURRENT_ITER := 0
-    MAX_ITER := nbIter
+    MAX_ITER := iter
     FILTER -> gaussian_filter
     iterate_render FILTER
 
-mean nbIter:integer ->
+mean iter:integer ->
     /**
     * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
     **/
     CURRENT_ITER := 0
-    MAX_ITER := nbIter
+    MAX_ITER := iter
     FILTER -> mean_filter
     iterate_render FILTER
 
-emboss nbIter:integer ->
+emboss iter:integer ->
     /**
     * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
     **/
     CURRENT_ITER := 0
-    MAX_ITER := nbIter
+    MAX_ITER := iter
     FILTER -> emboss_filter
     iterate_render FILTER
 
-sharpness nbIter:integer ->
+sharpness iter:integer ->
     /**
     * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
     **/
     CURRENT_ITER := 0
-    MAX_ITER := nbIter
+    MAX_ITER := iter
     FILTER -> sharpness_filter
     iterate_render FILTER
 
-laplacian nbIter:integer ->
+laplacian iter:integer ->
     /**
     * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
     **/
     CURRENT_ITER := 0
-    MAX_ITER := nbIter
+    MAX_ITER := iter
     FILTER -> laplacian_filter
     iterate_render FILTER
 
