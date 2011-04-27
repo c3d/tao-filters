@@ -19,7 +19,7 @@
  *
  * @param iter maximum number of iteration of the filter.
  */
-gaussian(integer iter);
+gaussian(iter:integer);
 
 /**
  * Apply a mean filter on the current texture.
@@ -27,7 +27,7 @@ gaussian(integer iter);
  *
  * @param iter maximum number of iteration of the filter.
  */
-mean(integer iter);
+mean(iter:integer);
 
 /**
  * Apply a embross filter on the current texture.
@@ -35,7 +35,7 @@ mean(integer iter);
  *
  * @param iter maximum number of iteration of the filter.
  */
-emboss(integer iter);
+emboss(iter:integer);
 
 /**
  * Apply a sharpness filter on the current texture.
@@ -43,7 +43,7 @@ emboss(integer iter);
  *
  * @param iter maximum number of iteration of the filter.
  */
-sharpness(integer iter);
+sharpness(iter:integer);
 
 /**
  * Apply a laplacian filter on the current texture.
@@ -51,7 +51,7 @@ sharpness(integer iter);
  *
  * @param iter maximum number of iteration of the filter.
  */
-laplacian(integer iter);
+laplacian(iter:integer);
 
 
 /**
