@@ -158,7 +158,7 @@ convolution_shader ->
                 //Add gray level
                 sum += level;
 
-                gl_FragColor = vec4(sum.rgb, 1.0);
+                gl_FragColor = sum;
             }
         >>
 
