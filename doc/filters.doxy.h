@@ -2,7 +2,7 @@
  * @defgroup Filters Filters
  * @ingroup Modules
  *
- * Apply filters on current texture.
+ * Apply filters on imported images.
  *
  * This module allows you to apply some basic filtering on your textures.
  *
@@ -110,7 +110,7 @@ erode_radius(radius:real);
  * @note erosion radius can be defined thanks to @ref erode_radius.
  *
  */
-erode_radius(x:real, y:real, threshold:real);
+erode(x:real, y:real, threshold:real);
 
 
 /**
