@@ -1,6 +1,6 @@
 // Filters module definition
 //
-// This exemple module defines the filter primitives
+// This module defines the filter primitives
 //
 // Copyright 2010-2011 Taodyne
 
@@ -20,7 +20,7 @@ module_description "fr",
 import RenderToTexture 1.0
 
 // -------------------------------------------------------------------------------------------------------------------
-//   Primitive filters
+//   Filters primitives
 // -------------------------------------------------------------------------------------------------------------------
 
 gaussian iter:integer ->
