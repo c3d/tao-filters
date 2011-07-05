@@ -119,14 +119,15 @@ convolution_shader ->
     * Define a common shader for convolution filters.
     **/
     shader_program
+        shader_log
         vertex_shader <<
 
             varying vec4 baseColor;
             void main()
             {
-               gl_Position    = ftransform();
-               gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-               baseColor      = gl_Color;
+                gl_Position    = ftransform();
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                baseColor      = gl_Color;
             }
         >>
         fragment_shader <<
@@ -236,13 +237,14 @@ erode_shader ->
     * Define shader to erode.
     **/
     shader_program
+        shader_log
         vertex_shader <<
             varying vec4 baseColor;
             void main()
             {
-                  gl_Position    = ftransform();
-                  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-                  baseColor      = gl_Color;
+                gl_Position    = ftransform();
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                baseColor      = gl_Color;
             }
         >>
         fragment_shader <<
@@ -328,33 +330,35 @@ black_and_white_shader ->
     * Define black & white shader
     **/
     shader_program
+        shader_log
         vertex_shader <<
-                    void main()
-                    {
-                        gl_Position    = ftransform();
-                        gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-                    }
-                    >>
+            shader_log
+            void main()
+            {
+                gl_Position    = ftransform();
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+            }
+            >>
 
         fragment_shader <<
-                    // Filter parameters
-                    uniform sampler2D colorMap;
-                    uniform float ratio_r;
-                    uniform float ratio_g;
-                    uniform float ratio_b;
+            // Filter parameters
+            uniform sampler2D colorMap;
+            uniform float ratio_r;
+            uniform float ratio_g;
+            uniform float ratio_b;
 
-                    void main()
-                    {
-                        vec4 color = texture2D( colorMap, gl_TexCoord[0].st );
+            void main()
+            {
+                vec4 color = texture2D( colorMap, gl_TexCoord[0].st );
 
-                        // Define color levels
-                        vec3 red   = vec3(color.r, color.r, color.r);
-                        vec3 green = vec3(color.g, color.g, color.g);
-                        vec3 blue  = vec3(color.b, color.b, color.b);
+                // Define color levels
+                vec3 red   = vec3(color.r, color.r, color.r);
+                vec3 green = vec3(color.g, color.g, color.g);
+                vec3 blue  = vec3(color.b, color.b, color.b);
 
-                        gl_FragColor = vec4(ratio_r * red + ratio_g * green +  ratio_b * blue, 1.0);
-                    }
-                    >>
+                gl_FragColor = vec4(ratio_r * red + ratio_g * green +  ratio_b * blue, 1.0);
+            }
+            >>
 
     shader_set colorMap := texture_unit
     shader_set ratio_r  := BLACK_WHITE_R
