@@ -10,6 +10,9 @@
  * @include filters.ddd
  *
  * @image html filters.png "Output of filters.ddd"
+ *
+ * @note To improve performance in Tao, it is recommended to render to files the result texture before to reload it in Tao.
+ *
  * @{
  */
 
@@ -17,41 +20,51 @@
  * Applies a Gaussian filter on current texture.
  * It can be used to add blur on an image for instance.
  *
- * @param iter maximum number of iteration of the filter.
+ * @param n maximum number of iteration of the filter.
+ *
+ * @note The result texture is obtained thanks to RenderToTexture module.
  */
-gaussian(iter:integer);
+gaussian(n:integer);
 
 /**
  * Applies a Mean filter on the current texture.
  * It can be used to remove noise of an image for instance.
  *
- * @param iter maximum number of iteration of the filter.
+ * @param n number of iteration of the filter.
+ *
+ * @note The result texture is obtained thanks to RenderToTexture module.
  */
-mean(iter:integer);
+mean(n:integer);
 
 /**
  * Applies an Embross filter on the current texture.
  * It can be used to simulate 3D in an image for instance.
  *
- * @param iter maximum number of iteration of the filter.
+ * @param n number of iteration of the filter.
+ *
+ * @note The result texture is obtained thanks to RenderToTexture module.
  */
-emboss(iter:integer);
+emboss(n:integer);
 
 /**
  * Applies a Sharpness filter on the current texture.
  * It can be used to highlight details of an image for instance.
  *
- * @param iter maximum number of iteration of the filter.
+ * @param n maximum number of iteration of the filter.
+ *
+ * @note The result texture is obtained thanks to RenderToTexture module.
  */
-sharpness(iter:integer);
+sharpness(n:integer);
 
 /**
  * Applies a Laplacian filter on the current texture.
  * It can be used to detect oulines of an image for instance.
  *
- * @param iter maximum number of iteration of the filter.
+ * @param n maximum number of iteration of the filter.
+ *
+ * @note The result texture is obtained thanks to RenderToTexture module.
  */
-laplacian(iter:integer);
+laplacian(n:integer);
 
 /**
  * Defines color levels for Black & White filter.
@@ -67,7 +80,7 @@ black_and_white_levels(ratio_r:real, ratio_g:real, ratio_b:real);
 
 /**
  * Applies a Black & White filter on the current texture.
- * * It can be used to transform a color map into a black & white one.
+ * It can be used to transform a color map into a black & white one.
  *
  * @note color levels can be defined for this filter thanks to @ref black_and_white_levels
  *

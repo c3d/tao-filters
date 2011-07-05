@@ -27,7 +27,6 @@ gaussian iter:integer ->
     /**
     * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
     **/
-    CURRENT_ITER := 0
     MAX_ITER := iter
     FILTER -> gaussian_filter
     iterate_render FILTER
@@ -36,7 +35,6 @@ mean iter:integer ->
     /**
     * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
     **/
-    CURRENT_ITER := 0
     MAX_ITER := iter
     FILTER -> mean_filter
     iterate_render FILTER
@@ -45,7 +43,6 @@ emboss iter:integer ->
     /**
     * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
     **/
-    CURRENT_ITER := 0
     MAX_ITER := iter
     FILTER -> emboss_filter
     iterate_render FILTER
@@ -54,7 +51,6 @@ sharpness iter:integer ->
     /**
     * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
     **/
-    CURRENT_ITER := 0
     MAX_ITER := iter
     FILTER -> sharpness_filter
     iterate_render FILTER
@@ -62,8 +58,7 @@ sharpness iter:integer ->
 laplacian iter:integer ->
     /**
     * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
-    **/
-    CURRENT_ITER := 0
+    **/    
     MAX_ITER := iter
     FILTER -> laplacian_filter
     iterate_render FILTER
@@ -81,6 +76,7 @@ gaussian_filter ->
     convolution_shader
     shader_set level  := 0.0
     shader_set kernel := (1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 4.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0)
+    refresh 0.1
 
 mean_filter ->
     /**
@@ -89,6 +85,7 @@ mean_filter ->
     convolution_shader
     shader_set level  := 0.0
     shader_set kernel := (1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0)
+    refresh 0.1
 
 emboss_filter ->
     /**
@@ -97,6 +94,7 @@ emboss_filter ->
     convolution_shader
     shader_set level  := 0.5
     shader_set kernel := (2.0; 0.0; 0.0; 0.0; -1.0; 0.0; 0.0; 0.0; -1.0)
+    refresh 0.1
 
 sharpness_filter ->
     /**
@@ -105,6 +103,7 @@ sharpness_filter ->
     convolution_shader
     shader_set level  := 0.0
     shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 9.0; -1.0; -1.0; -1.0; -1.0)
+    refresh 0.1
 
 laplacian_filter ->
     /**
@@ -113,6 +112,7 @@ laplacian_filter ->
     convolution_shader
     shader_set level  := 0.5
     shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 8.0; -1.0; -1.0; -1.0; -1.0)
+    refresh 0.1
 
 convolution_shader ->
     /**
@@ -120,10 +120,13 @@ convolution_shader ->
     **/
     shader_program
         vertex_shader <<
+
+            varying vec4 baseColor;
             void main()
             {
                gl_Position    = ftransform();
                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+               baseColor      = gl_Color;
             }
         >>
         fragment_shader <<
@@ -136,6 +139,8 @@ convolution_shader ->
             uniform sampler2D colorMap;
             uniform float kernel[KERNEL_SIZE]; //Convolution kernel
 
+            varying vec4 baseColor;
+
             vec2 offset[KERNEL_SIZE]; //Convolution offset
             float step_w = 1/width;
             float step_h = 1/height;
@@ -145,6 +150,7 @@ convolution_shader ->
                 int i = 0;
                 vec4 sum = vec4(0.0);
 
+                // Compute offset
                 offset[0] = vec2(-step_w, -step_h);
                 offset[1] = vec2(0.0, -step_h);
                 offset[2] = vec2(step_w, -step_h);
@@ -167,7 +173,7 @@ convolution_shader ->
                 //Add gray level
                 sum += level;
 
-                gl_FragColor = vec4(sum.rgb, 1.0);
+                gl_FragColor = vec4(sum.rgb, 1.0) * baseColor;
             }
         >>
 
@@ -221,7 +227,6 @@ erode x:real, y:real, threshold:real ->
     ERODE_CENTER_X  := x
     ERODE_CENTER_Y  := y
     ERODE_THRESHOLD := threshold
-
     shader -> erode_shader
     render_to_texture shader
     refresh 0.1
@@ -232,13 +237,16 @@ erode_shader ->
     **/
     shader_program
         vertex_shader <<
+            varying vec4 baseColor;
             void main()
             {
                   gl_Position    = ftransform();
                   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                  baseColor      = gl_Color;
             }
         >>
         fragment_shader <<
+
             // Filter parameters
             uniform sampler2D colorMap;
             uniform vec3 color;
@@ -246,8 +254,10 @@ erode_shader ->
             uniform float radius;
             uniform vec2 center;
 
-            // Filter main color according to the erode color and threshold
-            void filter(vec3 mainColor, vec3 erodeColor)
+            varying vec4 baseColor;
+
+            // Erode main color according to the erode color and threshold
+            void erode(vec3 mainColor, vec3 erodeColor)
             {
                 if(erodeColor.r + threshold >= mainColor.r
                 && erodeColor.g + threshold >= mainColor.g
@@ -272,9 +282,9 @@ erode_shader ->
 
                 // Filtering inside a circle
                 if((gl_TexCoord[0].s - center.x) * (gl_TexCoord[0].s - center.x) + (gl_TexCoord[0].t - center.y) * (gl_TexCoord[0].t - center.y) <= radius * radius)
-                    filter(mainColor.rgb, color);
+                    erode(mainColor.rgb, color);
 
-                gl_FragColor  = mainColor;
+                gl_FragColor  = mainColor * baseColor;
             }
         >>
 
@@ -282,7 +292,7 @@ erode_shader ->
     shader_set radius    := ERODE_RADIUS
     shader_set threshold := ERODE_THRESHOLD
     shader_set color     := (ERODE_R; ERODE_G; ERODE_B)
-    shader_set pos       := (ERODE_CENTER_X; ERODE_CENTER_Y)
+    shader_set center    := (ERODE_CENTER_X; ERODE_CENTER_Y)
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Black & White filter
