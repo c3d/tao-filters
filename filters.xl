@@ -130,8 +130,7 @@ convolution_shader ->
                 baseColor      = gl_Color;
             }
         >>
-        fragment_shader <<
-            #version 120
+        fragment_shader <<#version 120
             #define KERNEL_SIZE 9 //Kernel size 3x3
 
             uniform float level; //Gray level
