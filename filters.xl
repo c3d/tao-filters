@@ -142,8 +142,8 @@ convolution_shader ->
             varying vec4 baseColor;
 
             vec2 offset[KERNEL_SIZE]; //Convolution offset
-            float step_w = 1/width;
-            float step_h = 1/height;
+            float step_w = 1.0/width;
+            float step_h = 1.0/height;
 
             void main (void)
             {
