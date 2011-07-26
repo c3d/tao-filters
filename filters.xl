@@ -277,13 +277,14 @@ erode_shader ->
             {
                 vec4 mainColor = texture2D(colorMap, gl_TexCoord[0].st);
 
+                vec3 erodeColor;
                 // If color is not set, get center color to erode
                 if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)
-                    color = texture2D(colorMap, center);
+                    erodeColor = texture2D(colorMap, center).rgb;
 
                 // Filtering inside a circle
                 if((gl_TexCoord[0].s - center.x) * (gl_TexCoord[0].s - center.x) + (gl_TexCoord[0].t - center.y) * (gl_TexCoord[0].t - center.y) <= radius * radius)
-                    erode(mainColor.rgb, color);
+                    erode(mainColor.rgb, erodeColor);
 
                 gl_FragColor  = mainColor * baseColor;
             }
@@ -331,7 +332,6 @@ black_and_white_shader ->
     shader_program
         shader_log
         vertex_shader <<
-            shader_log
             void main()
             {
                 gl_Position    = ftransform();
