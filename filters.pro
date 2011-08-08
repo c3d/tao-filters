@@ -14,37 +14,7 @@ MODINSTDIR = filters
 
 include(../modules.pri)
 
+OTHER_FILES = filters.xl
 
-
-DEFINES     += GLEW_STATIC
-
-INCLUDEPATH += $${TAOTOPSRC}/tao/include/tao/
-HEADERS = \
-          filters.h \
-          filtering.h \
-          convolution_filter.h \
-          erosion.h \
-          black_and_white.h \
-
-SOURCES = filters.cpp $${TAOTOPSRC}/tao/include/tao/GL/glew.c \
-          filtering.cpp \
-          convolution_filter.cpp \
-          erosion.cpp \
-          black_and_white.cpp \
-
-TBL_SOURCES  = filters.tbl
-
-OTHER_FILES = filters.xl filters.tbl traces.tbl
-QT          += core \
-               gui \
-               opengl
-
+INSTALLS    -= thismod_bin
 INSTALLS    += thismod_icon
-
-LICENSE_FILES = filters.taokey.notsigned
-include(../licenses.pri)
-
-QMAKE_SUBSTITUTES = doc/Doxyfile.in
-DOXYFILE = doc/Doxyfile
-DOXYLANG = en,fr
-include(../modules_doc.pri)
