@@ -130,27 +130,24 @@ convolution_shader ->
                 baseColor      = gl_Color;
             }
         >>
-        fragment_shader <<#version 120
-            #define KERNEL_SIZE 9 //Kernel size 3x3
-
+        fragment_shader <<
             uniform float level; //Gray level
             uniform float width; //Texture width
             uniform float height; //Texture height
             uniform sampler2D colorMap;
-            uniform float kernel[KERNEL_SIZE]; //Convolution kernel
+            uniform float kernel[9]; //Convolution kernel
 
             varying vec4 baseColor;
-
-            vec2 offset[KERNEL_SIZE]; //Convolution offset
-            float step_w = 1.0/width;
-            float step_h = 1.0/height;
-
             void main (void)
             {
+                float step_w = 1.0 / width;
+                float step_h = 1.0 / height;
+
                 int i = 0;
                 vec4 sum = vec4(0.0);
 
-                // Compute offset
+                // Compute offset                
+                vec2 offset[9]; //Convolution offset
                 offset[0] = vec2(-step_w, -step_h);
                 offset[1] = vec2(0.0, -step_h);
                 offset[2] = vec2(step_w, -step_h);
@@ -164,7 +161,7 @@ convolution_shader ->
                 offset[8] = vec2(step_w, step_h);
 
                 //Apply filter to the current map
-                for( i=0; i<KERNEL_SIZE; i++ )
+                for( i=0; i < 9; i++ )
                 {
                     vec4 tmp = texture2D(colorMap, gl_TexCoord[0].st + offset[i]);
                     sum     += tmp * kernel[i];
