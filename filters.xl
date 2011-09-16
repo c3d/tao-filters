@@ -272,7 +272,11 @@ erode_shader ->
                     erodeColor = texture2D(colorMap, center).rgb;
 
                 // Filtering inside a circle
-                if((gl_TexCoord[0].s - center.x) * (gl_TexCoord[0].s - center.x) + (gl_TexCoord[0].t - center.y) * (gl_TexCoord[0].t - center.y) <= radius * radius)
+                if((gl_TexCoord[0].s - center.x) *
+                   (gl_TexCoord[0].s - center.x) +
+                   (gl_TexCoord[0].t - center.y) *
+                   (gl_TexCoord[0].t - center.y) <= radius * radius)
+
                     erode(mainColor.rgb, erodeColor);
 
                 gl_FragColor  = mainColor * baseColor;
