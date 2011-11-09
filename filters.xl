@@ -121,7 +121,13 @@ convolution_shader ->
             void main()
             {
                 gl_Position    = ftransform();
+
+                // Compute texture coordinates
                 gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
+
                 baseColor      = gl_Color;
             }
         >>
@@ -131,11 +137,25 @@ convolution_shader ->
             uniform float width;     //Texture width
             uniform float height;    //Texture height
             uniform float kernel[9]; //Convolution kernel
+
+            uniform int       texUnit;
             uniform sampler2D colorMap;
 
             varying vec4 baseColor;
             void main (void)
             {
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+
                 // Size of a pixel
                 float pixel_w = 1.0 / width;
                 float pixel_h = 1.0 / height;
@@ -159,7 +179,7 @@ convolution_shader ->
 
                 //Apply filter to the current map
                 for( i=0; i < 9; i++ )
-                    sum += texture2D(colorMap, gl_TexCoord[0].st + offset[i]) * kernel[i];
+                    sum += texture2D(colorMap, texCoords + offset[i]) * kernel[i];
 
                 //Add gray level
                 sum += level;
@@ -167,6 +187,7 @@ convolution_shader ->
                 gl_FragColor = vec4(sum.rgb, 1.0) * baseColor;
             }
         >>
+    shader_set texUnit  := texture_unit   // Texture unit
     shader_set colorMap := texture_unit   // Unit of the texture to filter
     shader_set width    := TEXTURE_WIDTH  // Width of the color map
     shader_set height   := TEXTURE_HEIGHT // Height of the color map
@@ -232,19 +253,26 @@ erode_shader ->
             void main()
             {
                 gl_Position    = ftransform();
+
+                // Compute texture coordinates
                 gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
+
                 baseColor      = gl_Color;
             }
         >>
         fragment_shader <<
             // Filter parameters
-            uniform sampler2D colorMap;
-            uniform vec3 color;
-            uniform float threshold;
             uniform float radius;
+            uniform float threshold;
             uniform vec2 center;
-
+            uniform vec3 color;
             varying vec4 baseColor;
+
+            uniform int       texUnit;
+            uniform sampler2D colorMap;
 
             // Erode main color according to the erode color and threshold
             void erode(vec3 mainColor, vec3 erodeColor)
@@ -264,7 +292,19 @@ erode_shader ->
 
             void main()
             {
-                vec4 mainColor = texture2D(colorMap, gl_TexCoord[0].st);
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+
+                vec4 mainColor = texture2D(colorMap, texCoords);
 
                 vec3 erodeColor;
                 // If color is not set, get center color to erode
@@ -282,8 +322,8 @@ erode_shader ->
                 gl_FragColor  = mainColor * baseColor;
             }
         >>
-
-    shader_set colorMap  := texture_unit                     // Unit of the texture to filter
+    shader_set texUnit  := texture_unit                                   // Texture unit
+    shader_set colorMap := texture_unit                                   // Set the texture to filter
     shader_set radius    := ERODE_RADIUS                     // Radius of the erosion
     shader_set threshold := ERODE_THRESHOLD                  // threshold of the erosion
     shader_set color     := (ERODE_R; ERODE_G; ERODE_B)      // Color to erode
@@ -328,18 +368,36 @@ black_and_white_shader ->
             void main()
             {
                 gl_Position    = ftransform();
+
+                // Compute texture coordinates
                 gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
             }
             >>
 
         fragment_shader <<
             // Filter parameters
-            uniform sampler2D colorMap;
             uniform vec3 ratio;
+
+            uniform int       texUnit;
+            uniform sampler2D colorMap;
 
             void main()
             {
-                vec4 color = texture2D( colorMap, gl_TexCoord[0].st );
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+                vec4 color = texture2D( colorMap, texCoords );
 
                 // Define color levels
                 vec3 red   = vec3(color.r, color.r, color.r);
@@ -349,8 +407,8 @@ black_and_white_shader ->
                 gl_FragColor = vec4(ratio.r * red + ratio.g * green +  ratio.b * blue, 1.0);
             }
             >>
-
-    shader_set colorMap := texture_unit                                   // Unit of the texture to filter
+    shader_set texUnit  := texture_unit                                   // Texture unit
+    shader_set colorMap := texture_unit                                   // Set the texture to filter
     shader_set ratio    := (BLACK_WHITE_R; BLACK_WHITE_G; BLACK_WHITE_B)  // Ratio of filtering
 
 
