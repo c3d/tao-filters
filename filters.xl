@@ -11,11 +11,13 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.004
+    version "1.0"
 
 module_description "fr",
     name "Filtrage"
     description "Permet d'appliquer de nombreux filtres sur les images importées dans Tao."
+
+import RenderToTexture 1.0
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Filters primitives
@@ -25,105 +27,388 @@ gaussian iter:integer ->
     /**
     * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
     **/
-    gaussian_iter with 1..iter
-
-gaussian_iter i ->
-    /**
-    * Apply an iterative gaussian filter on the current texture.
-    **/
-    render_to_texture {gaussian texture_unit, texture_width, texture_height}
-
+    MAX_ITER := iter
+    FILTER -> gaussian_filter
+    iterate_render FILTER
 
 mean iter:integer ->
     /**
     * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
     **/
-    mean_iter with 1..iter
-
-mean_iter i ->
-    /**
-    * Apply an iterative mean filter on the current texture.
-    **/
-    render_to_texture {mean texture_unit, texture_width, texture_height}
-
+    MAX_ITER := iter
+    FILTER -> mean_filter
+    iterate_render FILTER
 
 emboss iter:integer ->
     /**
     * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
     **/
-    emboss_iter with 1..iter
-
-emboss_iter i ->
-    /**
-    * Apply an iterative emboss filter on the current texture.
-    **/
-    render_to_texture {emboss texture_unit, texture_width, texture_height}
-
+    MAX_ITER := iter
+    FILTER -> emboss_filter
+    iterate_render FILTER
 
 sharpness iter:integer ->
     /**
     * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
     **/
-    sharpness_iter with 1..iter
-
-sharpness_iter i ->
-    /**
-    * Apply an iterative sharpness filter on the current texture.
-    **/
-    render_to_texture {sharpness texture_unit, texture_width, texture_height}
-
+    MAX_ITER := iter
+    FILTER -> sharpness_filter
+    iterate_render FILTER
 
 laplacian iter:integer ->
     /**
     * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
     **/    
-    laplacian_iter with 1..iter
+    MAX_ITER := iter
+    FILTER -> laplacian_filter
+    iterate_render FILTER
 
-laplacian_iter i ->
+
+// -------------------------------------------------------------------------------------------------------------------
+//   Convolution filters 3x3
+//   For further informations, see http://www.opengl.org/resources/code/samples/advanced/advanced97/notes/node152.html
+// -------------------------------------------------------------------------------------------------------------------
+
+gaussian_filter ->
     /**
-    * Apply an iterative laplacian filter on the current texture.
+    * Apply a gaussian convolution on the current texture.
     **/
-    render_to_texture {laplacian texture_unit, texture_width, texture_height}
+    convolution_shader
+    shader_set level  := 0.0
+    shader_set kernel := (1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 4.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0; 2.0 / 16.0; 1.0 / 16.0)
+
+mean_filter ->
+    /**
+    * Apply a mean convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level  := 0.0
+    shader_set kernel := (1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0; 1.0 / 9.0)
+
+emboss_filter ->
+    /**
+    * Apply a embross convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level  := 0.5
+    shader_set kernel := (2.0; 0.0; 0.0; 0.0; -1.0; 0.0; 0.0; 0.0; -1.0)
+
+sharpness_filter ->
+    /**
+    * Apply a sharpness convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level  := 0.0
+    shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 9.0; -1.0; -1.0; -1.0; -1.0)
+    refresh 0.1
+
+laplacian_filter ->
+    /**
+    * Apply a laplacian convolution on the current texture.
+    **/
+    convolution_shader
+    shader_set level  := 0.5
+    shader_set kernel := (-1.0; -1.0; -1.0; -1.0; 8.0; -1.0; -1.0; -1.0; -1.0)
+
+convolution_shader ->
+    /**
+    * Define a common shader for convolution filters.
+    **/
+    shader_program
+        shader_log
+        vertex_shader <<
+            varying vec4 baseColor;
+            void main()
+            {
+                gl_Position    = ftransform();
+
+                // Compute texture coordinates
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
+
+                baseColor      = gl_Color;
+            }
+        >>
+        fragment_shader <<
+            // Filter parameters
+            uniform float level;     //Gray level
+            uniform float width;     //Texture width
+            uniform float height;    //Texture height
+            uniform float kernel[9]; //Convolution kernel
+
+            uniform int       texUnit;
+            uniform sampler2D colorMap;
+
+            varying vec4 baseColor;
+            void main (void)
+            {
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+
+                // Size of a pixel
+                float pixel_w = 1.0 / width;
+                float pixel_h = 1.0 / height;
+
+                int i = 0;
+                vec4 sum = vec4(0.0);
+
+                // Compute offset                
+                vec2 offset[9]; //Convolution offset
+                offset[0] = vec2(-pixel_w, -pixel_h);
+                offset[1] = vec2(0.0, -pixel_h);
+                offset[2] = vec2(pixel_w, -pixel_h);
+
+                offset[3] = vec2(-pixel_w, 0.0);
+                offset[4] = vec2(0.0, 0.0);
+                offset[5] = vec2(pixel_w, 0.0);
+
+                offset[6] = vec2(-pixel_w, pixel_h);
+                offset[7] = vec2(0.0, pixel_h);
+                offset[8] = vec2(pixel_w, pixel_h);
+
+                //Apply filter to the current map
+                for( i=0; i < 9; i++ )
+                    sum += texture2D(colorMap, texCoords + offset[i]) * kernel[i];
+
+                //Add gray level
+                sum += level;
+
+                gl_FragColor = vec4(sum.rgb, 1.0) * baseColor;
+            }
+        >>
+    shader_set texUnit  := texture_unit   // Texture unit
+    shader_set colorMap := texture_unit   // Unit of the texture to filter
+    shader_set width    := TEXTURE_WIDTH  // Width of the color map
+    shader_set height   := TEXTURE_HEIGHT // Height of the color map
 
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Eroding filter
 // -------------------------------------------------------------------------------------------------------------------
 
+// Erosion center
+ERODE_CENTER_X -> 0.5
+ERODE_CENTER_Y -> 0.5
+
+// Erosion radius
+ERODE_RADIUS -> 1.0
+ERODE_RADIUS := 1.0
+
+// Erosion threshold
+ERODE_THRESHOLD -> 0.5
+ERODE_THRESHOLD := 0.5
+
+// Erosion color
+ERODE_R -> 2.0
+ERODE_R := 2.0
+ERODE_G -> 2.0
+ERODE_G := 2.0
+ERODE_B -> 2.0
+ERODE_B := 2.0
+
+erode_color r:real, g:real, b:real ->
+    /**
+    * Define erosion color.
+    **/
+    ERODE_R := r
+    ERODE_G := g
+    ERODE_B := b
+
+erode_radius radius:real ->
+    /**
+    * Define erosion radius.
+    **/
+    ERODE_RADIUS := radius
+
 erode x:real, y:real, threshold:real ->
     /**
     * Apply Erosion filter.
     **/
-    FILTER -> erode texture_unit, x, y, threshold
-    render_to_texture FILTER
+    ERODE_CENTER_X  := x
+    ERODE_CENTER_Y  := y
+    ERODE_THRESHOLD := threshold
+    shader -> erode_shader
+    render_to_texture shader
+    refresh 0.1
+
+erode_shader ->
+    /**
+    * Define shader to erode.
+    **/
+    shader_program
+        shader_log
+        vertex_shader <<
+            varying vec4 baseColor;
+            void main()
+            {
+                gl_Position    = ftransform();
+
+                // Compute texture coordinates
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
+
+                baseColor      = gl_Color;
+            }
+        >>
+        fragment_shader <<
+            // Filter parameters
+            uniform float radius;
+            uniform float threshold;
+            uniform vec2 center;
+            uniform vec3 color;
+            varying vec4 baseColor;
+
+            uniform int       texUnit;
+            uniform sampler2D colorMap;
+
+            // Erode main color according to the erode color and threshold
+            void erode(vec3 mainColor, vec3 erodeColor)
+            {
+                if(erodeColor.r + threshold >= mainColor.r
+                && erodeColor.g + threshold >= mainColor.g
+                && erodeColor.b + threshold >= mainColor.b)
+                {
+                    if(erodeColor.r - threshold <= mainColor.r
+                    && erodeColor.g - threshold <= mainColor.g
+                    && erodeColor.b - threshold <= mainColor.b)
+                    {
+                        discard;
+                    }
+                }
+            }
+
+            void main()
+            {
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+
+                vec4 mainColor = texture2D(colorMap, texCoords);
+
+                vec3 erodeColor;
+                // If color is not set, get center color to erode
+                if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)
+                    erodeColor = texture2D(colorMap, center).rgb;
+
+                // Filtering inside a circle
+                if((gl_TexCoord[0].s - center.x) *
+                   (gl_TexCoord[0].s - center.x) +
+                   (gl_TexCoord[0].t - center.y) *
+                   (gl_TexCoord[0].t - center.y) <= radius * radius)
+
+                    erode(mainColor.rgb, erodeColor);
+
+                gl_FragColor  = mainColor * baseColor;
+            }
+        >>
+    shader_set texUnit  := texture_unit                                   // Texture unit
+    shader_set colorMap := texture_unit                                   // Set the texture to filter
+    shader_set radius    := ERODE_RADIUS                     // Radius of the erosion
+    shader_set threshold := ERODE_THRESHOLD                  // threshold of the erosion
+    shader_set color     := (ERODE_R; ERODE_G; ERODE_B)      // Color to erode
+    shader_set center    := (ERODE_CENTER_X; ERODE_CENTER_Y) // Center of the erosion
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Black & White filter
 // -------------------------------------------------------------------------------------------------------------------
 
+BLACK_WHITE_R -> 0.3
+BLACK_WHITE_R := 0.3
+
+BLACK_WHITE_G -> 0.3
+BLACK_WHITE_G := 0.3
+
+BLACK_WHITE_B -> 0.3
+BLACK_WHITE_B := 0.3
+
+black_and_white_levels r:real, g:real, b:real ->
+    /**
+    * Set RGB levels for black & white filter
+    **/
+    BLACK_WHITE_R := r
+    BLACK_WHITE_G := g
+    BLACK_WHITE_B := b
+
 black_and_white ->
     /**
     * Apply Black & White filter
     **/
-    render_to_texture black_and_white texture_unit
+    shader -> black_and_white_shader
+    render_to_texture shader
+    refresh 0.1
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Render to Texture
-// -------------------------------------------------------------------------------------------------------------------
-
-TEXTURE_WIDTH -> 0
-TEXTURE_HEIGHT -> 0
-TEXTURE_ID -> 0
-
-render_to_texture RENDER_CODE ->
+black_and_white_shader ->
     /**
-    * Allow to render the current texture modified by RENDER_CODE to new one.
+    * Define black & white shader
     **/
-    TEXTURE_WIDTH := texture_width
-    TEXTURE_HEIGHT := texture_height
-    TEXTURE_ID := texture
-    frame_texture TEXTURE_WIDTH, TEXTURE_HEIGHT,
-        color "white"
-        texture TEXTURE_ID
-        do RENDER_CODE
-        rectangle 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT
+    shader_program
+        shader_log
+        vertex_shader <<
+            void main()
+            {
+                gl_Position    = ftransform();
+
+                // Compute texture coordinates
+                gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+                gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;
+                gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;
+            }
+            >>
+
+        fragment_shader <<
+            // Filter parameters
+            uniform vec3 ratio;
+
+            uniform int       texUnit;
+            uniform sampler2D colorMap;
+
+            void main()
+            {
+                // Get the correct texture coordinates
+                vec2 texCoords = vec2(0.0);
+                if(texUnit == 0)
+                    texCoords = gl_TexCoord[0].st;
+                if(texUnit == 1)
+                    texCoords = gl_TexCoord[1].st;
+                if(texUnit == 2)
+                    texCoords = gl_TexCoord[2].st;
+                if(texUnit == 3)
+                    texCoords = gl_TexCoord[3].st;
+
+                vec4 color = texture2D( colorMap, texCoords );
+
+                // Define color levels
+                vec3 red   = vec3(color.r, color.r, color.r);
+                vec3 green = vec3(color.g, color.g, color.g);
+                vec3 blue  = vec3(color.b, color.b, color.b);
+
+                gl_FragColor = vec4(ratio.r * red + ratio.g * green +  ratio.b * blue, 1.0);
+            }
+            >>
+    shader_set texUnit  := texture_unit                                   // Texture unit
+    shader_set colorMap := texture_unit                                   // Set the texture to filter
+    shader_set ratio    := (BLACK_WHITE_R; BLACK_WHITE_G; BLACK_WHITE_B)  // Ratio of filtering
+
+
