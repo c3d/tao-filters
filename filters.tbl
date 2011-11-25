@@ -1,0 +1,134 @@
+// ****************************************************************************
+//  filters.tbl                                                     Tao project
+// ****************************************************************************
+// 
+//   File Description:
+// 
+//     Definition of the interface between XLR and native code
+//     for the "Filters" module.
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// ****************************************************************************
+// This software is property of Taodyne SAS - Confidential
+// Ce logiciel est la propriété de Taodyne SAS - Confidentiel
+//  (C) 2011 Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+//  (C) 2011 Taodyne SAS
+// ****************************************************************************
+#include "filters.h"
+
+// ============================================================================
+//
+//   Convolution filters
+//
+// ============================================================================
+
+PREFIX(Gaussian,  tree, "gaussian",
+       PARM(unit, integer, )
+       PARM(w, integer, )
+       PARM(h, integer, ),
+       return gaussian(self, unit, w, h),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(Mean,  tree, "mean",
+       PARM(unit, integer, )
+       PARM(w, integer, )
+       PARM(h, integer, ),
+       return mean(self, unit, w, h),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(Emboss,  tree, "emboss",
+       PARM(unit, integer, )
+       PARM(w, integer, )
+       PARM(h, integer, ),
+       return emboss(self, unit, w, h),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(Sharpness,  tree, "sharpness",
+       PARM(unit, integer, )
+       PARM(w, integer, )
+       PARM(h, integer, ),
+       return sharpness(self, unit, w, h),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(Laplacian,  tree, "laplacian",
+       PARM(unit, integer, )
+       PARM(w, integer, )
+       PARM(h, integer, ),
+       return laplacian(self, unit, w, h),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+// ============================================================================
+//
+//   Erosion filter
+//
+// ============================================================================
+
+PREFIX(ErodeRadius,  tree, "erode_radius",
+       PARM(r, real, ),
+       return erode_radius(self, r),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(ErodeColor,  tree, "erode_color",
+       PARM(r, real, )
+       PARM(g, real, )
+       PARM(b, real, ),
+       return erode_color(self, r, g, b),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(Erode,  tree, "erode",
+       PARM(unit, integer, )
+       PARM(x, real, )
+       PARM(y, real, )
+       PARM(thr, real, ),
+       return erode(self, unit, x, y, thr),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+// ============================================================================
+//
+//   Black and white filter
+//
+// ============================================================================
+
+PREFIX(BlackAndWhiteLevels,  tree, "black_and_white_levels",
+       PARM(r, real, )
+       PARM(g, real, )
+       PARM(b, real, ),
+       return black_and_white_levels(self, r, g, b),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+PREFIX(BlackAndWhite,  tree, "black_and_white",
+       PARM(unit, integer, ),
+       return black_and_white(self, unit),
+       GROUP(module.Filters)
+       SYNOPSIS("")
+       DESCRIPTION(""))
+
+
+
+
+
+
+
