@@ -148,7 +148,7 @@ void BlackAndWhite::render_callback(void *arg)
 }
 
 
-void BlackAndWhite::identify_callback(void *)
+void BlackAndWhite::identify_callback(void *arg)
 // ----------------------------------------------------------------------------
 //   Identify callback: don't do anything
 // ----------------------------------------------------------------------------

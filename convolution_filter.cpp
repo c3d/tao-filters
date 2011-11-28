@@ -189,7 +189,7 @@ void ConvolutionFilter::render_callback(void *arg)
 }
 
 
-void ConvolutionFilter::identify_callback(void *)
+void ConvolutionFilter::identify_callback(void *arg)
 // ----------------------------------------------------------------------------
 //   Identify callback: don't do anything
 // ----------------------------------------------------------------------------

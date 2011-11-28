@@ -55,7 +55,7 @@ void Filter::render_callback(void *arg)
 }
 
 
-void Filter::identify_callback(void *)
+void Filter::identify_callback(void *arg)
 // ----------------------------------------------------------------------------
 //   Identify callback: don't do anything
 // ----------------------------------------------------------------------------

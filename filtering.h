@@ -32,7 +32,7 @@ struct Filter : public QObject
     Filter();
     ~Filter();
 
-    // Draw mapping
+    // Draw filter
     virtual void    Draw();
 
     static void     render_callback(void *arg);
