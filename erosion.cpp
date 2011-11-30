@@ -139,20 +139,18 @@ Erosion::Erosion(uint unit, float x, float y, float threshold)
             pgm = NULL;
             failed = true;
         }
-        else
-        {
-            pgm->link();
 
-            // Save uniform locations
-            uint id = pgm->programId();
-            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+        pgm->link();
 
-            uniforms["radius"]    = glGetUniformLocation(id, "radius");
-            uniforms["threshold"] = glGetUniformLocation(id, "threshold");
-            uniforms["center"]    = glGetUniformLocation(id, "center");
-            uniforms["color"]     = glGetUniformLocation(id, "color");
-        }
+        // Save uniform locations
+        uint id = pgm->programId();
+        uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
+        uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+
+        uniforms["radius"]    = glGetUniformLocation(id, "radius");
+        uniforms["threshold"] = glGetUniformLocation(id, "threshold");
+        uniforms["center"]    = glGetUniformLocation(id, "center");
+        uniforms["color"]     = glGetUniformLocation(id, "color");
     }
 
 }
@@ -172,8 +170,8 @@ void Erosion::setColor(GLfloat erode_color[3])
 // ----------------------------------------------------------------------------
 {
     color[0] = erode_color[0];
-    color[1] = erode_color[1];
-    color[2] = erode_color[2];
+    color[1] = erode_color[2];
+    color[2] = erode_color[3];
 }
 
 
@@ -225,13 +223,10 @@ void Erosion::Draw()
     if (!licensed && !tao->blink(1.0, 0.2))
         return;
 
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
+    uint id = pgm->programId();
+    if(id)
     {
-        tao->SetShader(prg_id);
+        tao->SetShader(id);
 
         // Set texture parameters
         glUniform1i(uniforms["texUnit"], unit);

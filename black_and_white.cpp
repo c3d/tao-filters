@@ -107,16 +107,14 @@ BlackAndWhite::BlackAndWhite(uint unit)
             pgm = NULL;
             failed = true;
         }
-        else
-        {
-            pgm->link();
 
-            // Save uniform locations
-            uint id = pgm->programId();
-            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
-            uniforms["levels"]   = glGetUniformLocation(id, "levels");
-        }
+        pgm->link();
+
+        // Save uniform locations
+        uint id = pgm->programId();
+        uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
+        uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+        uniforms["levels"]   = glGetUniformLocation(id, "levels");
     }
 
 }
@@ -136,8 +134,8 @@ void BlackAndWhite::setLevels(GLfloat color_levels[3])
 // ----------------------------------------------------------------------------
 {
     levels[0] = color_levels[0];
-    levels[1] = color_levels[1];
-    levels[2] = color_levels[2];
+    levels[1] = color_levels[2];
+    levels[2] = color_levels[3];
 }
 
 
@@ -180,10 +178,7 @@ void BlackAndWhite::Draw()
     if (!licensed && !tao->blink(1.0, 0.2))
         return;
 
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
+    uint prg_id = pgm->programId();
     if(prg_id)
     {
         tao->SetShader(prg_id);

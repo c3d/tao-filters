@@ -85,8 +85,8 @@ ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
                 "       texCoords = gl_TexCoord[3].st;"
 
                 "   /* Size of a pixel */"
-                "   float pixel_w = 1.0 / float(width);"
-                "   float pixel_h = 1.0 / float(height);"
+                "   float pixel_w = 1.0 / width;"
+                "   float pixel_h = 1.0 / height;"
 
                 "   int i = 0;"
                 "   vec4 sum = vec4(0.0);"
@@ -138,20 +138,18 @@ ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
             pgm = NULL;
             failed = true;
         }
-        else
-        {
-            pgm->link();
 
-            // Save uniform locations
-            uint id = pgm->programId();
-            uniforms["width"]    = glGetUniformLocation(id, "width");
-            uniforms["height"] = glGetUniformLocation(id, "height");
-            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+        pgm->link();
 
-            uniforms["level"]    = glGetUniformLocation(id, "level");
-            uniforms["kernel"]     = glGetUniformLocation(id, "kernel");
-        }
+        // Save uniform locations
+        uint id = pgm->programId();
+        uniforms["width"]    = glGetUniformLocation(id, "width");
+        uniforms["height"] = glGetUniformLocation(id, "height");
+        uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
+        uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+
+        uniforms["level"]    = glGetUniformLocation(id, "level");
+        uniforms["kernel"]     = glGetUniformLocation(id, "kernel");
     }
 }
 
@@ -221,13 +219,10 @@ void ConvolutionFilter::Draw()
     if (!licensed && !tao->blink(1.0, 0.2))
         return;
 
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
+    uint id = pgm->programId();
+    if(id)
     {
-        tao->SetShader(prg_id);
+        tao->SetShader(id);
 
         // Set texture parameters
         glUniform1i(uniforms["width"], w);
