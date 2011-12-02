@@ -26,7 +26,7 @@ XL_DEFINE_TRACES
 static GLfloat erodeRadius   = 1.0;
 static GLfloat erodeColor[3] = {2.0, 2.0, 2.0};
 
-static GLfloat levels[3] = { 0.5, 0.5, 0.5 };
+static GLfloat levels[3] = { 0.299, 0.587, 0.114 };
 
 // ============================================================================
 //
