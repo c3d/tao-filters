@@ -1,4 +1,4 @@
-#ifndef BLACK_AND_WHITE_H
+﻿#ifndef BLACK_AND_WHITE_H
 #define BLACK_AND_WHITE_H
 // ****************************************************************************
 //  black_and_white.h                                               Tao project
@@ -37,18 +37,18 @@ struct BlackAndWhite : public Filter
     // Draw black and white filter
     virtual void    Draw();
 
-protected:
-    virtual void    createShaders();
+    static void     render_callback(void *arg);
+    static void     identify_callback(void *arg);
+    static void     delete_callback(void *arg);
 
-private:
-    uint    unit;       // texture parameters
-    GLfloat levels[3];  // color levels
+ private:
+   uint    unit;       // texture parameters
+   GLfloat levels[3];  // color levels
 
-    static bool failed;
-    static QGLShaderProgram* pgm;
-    static std::map<text, GLint> uniforms;
-    static const QGLContext* context;
+   static bool failed;
+   static QGLShaderProgram* pgm;
+   static std::map<text, GLint> uniforms;
 };
 
 
-#endif // CEL_SHADING_H
+#endif

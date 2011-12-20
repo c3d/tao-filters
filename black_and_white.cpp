@@ -29,109 +29,20 @@
 bool                  BlackAndWhite::failed = false;
 QGLShaderProgram*     BlackAndWhite::pgm = NULL;
 std::map<text, GLint> BlackAndWhite::uniforms;
-const QGLContext*     BlackAndWhite::context = NULL;
-
 
 BlackAndWhite::BlackAndWhite(uint unit)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit)
+    : unit(unit)
 {
-    IFTRACE(filters)
-            debug() << "Create black and white filter" << "\n";
-
-    checkGLContext();
-}
-
-
-BlackAndWhite::~BlackAndWhite()
-// ----------------------------------------------------------------------------
-//   Destruction
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void BlackAndWhite::setLevels(GLfloat color_levels[3])
-// ----------------------------------------------------------------------------
-//   Set color levels
-// ----------------------------------------------------------------------------
-{
-    levels[0] = color_levels[0];
-    levels[1] = color_levels[1];
-    levels[2] = color_levels[2];
-}
-
-
-void BlackAndWhite::Draw()
-// ----------------------------------------------------------------------------
-//   Apply black and white filter
-// ----------------------------------------------------------------------------
-{
-    if (!tested)
+    if(!pgm && !failed)
     {
-        licensed = tao->checkImpressOrLicense("Filters 1.0");
-        tested = true;
-    }
-
-    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
-        return;
-
-    checkGLContext();
-
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
-    {
-        IFTRACE(filters)
-                debug() << "Apply black and white filter" << "\n";
-
-        // Set shader
-        tao->SetShader(prg_id);
-
-        // Set texture parameters
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
-
-        // Set erosion parameters
-        glUniform3fv(uniforms["levels"], 1, levels);
-    }
-}
-
-
-void BlackAndWhite::createShaders()
-// ----------------------------------------------------------------------------
-//   Create shader programs
-// ----------------------------------------------------------------------------
-{
-    if(!failed)
-    {
-        IFTRACE(filters)
-                debug() << "Create shader for black and white filter" << "\n";
-
-        delete pgm;
-
-        pgm = new QGLShaderProgram(*pcontext);
+        pgm = new QGLShaderProgram();
         bool ok = false;
 
         // Basic vertex shader
         static string vSrc =
-                "/********************************************************************************\n"
-                "**                                                                               \n"
-                "** Copyright (C) 2011 Taodyne.                                                   \n"
-                "** All rights reserved.                                                          \n"
-                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-                "**                                                                               \n"
-                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-                "** It can be only used in the software and these modules.                        \n"
-                "**                                                                               \n"
-                "** If you have questions regarding the use of this file, please contact          \n"
-                "** Taodyne at contact@taodyne.com.                                               \n"
-                "**                                                                               \n"
-                "********************************************************************************/\n"
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
@@ -144,19 +55,6 @@ void BlackAndWhite::createShaders()
                 "}";
 
         static string fSrc =
-                "/********************************************************************************\n"
-                "**                                                                               \n"
-                "** Copyright (C) 2011 Taodyne.                                                   \n"
-                "** All rights reserved.                                                          \n"
-                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-                "**                                                                               \n"
-                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-                "** It can be only used in the software and these modules.                        \n"
-                "**                                                                               \n"
-                "** If you have questions regarding the use of this file, please contact          \n"
-                "** Taodyne at contact@taodyne.com.                                               \n"
-                "**                                                                               \n"
-                "********************************************************************************/\n"
                 "/* Filter parameters */"
                 "uniform vec3 levels;"
 
@@ -220,4 +118,82 @@ void BlackAndWhite::createShaders()
             uniforms["levels"]   = glGetUniformLocation(id, "levels");
         }
     }
+
 }
+
+
+BlackAndWhite::~BlackAndWhite()
+// ----------------------------------------------------------------------------
+//   Destruction
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void BlackAndWhite::setLevels(GLfloat color_levels[3])
+// ----------------------------------------------------------------------------
+//   Set color levels
+// ----------------------------------------------------------------------------
+{
+    levels[0] = color_levels[0];
+    levels[1] = color_levels[1];
+    levels[2] = color_levels[2];
+}
+
+
+void BlackAndWhite::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((BlackAndWhite *)arg)->Draw();
+}
+
+
+void BlackAndWhite::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void BlackAndWhite::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (BlackAndWhite *)arg;
+}
+
+
+void BlackAndWhite::Draw()
+// ----------------------------------------------------------------------------
+//   Apply Convolution Filter
+// ----------------------------------------------------------------------------
+{
+    if (!tested)
+    {
+        licensed = tao->checkLicense("Filters 1.0", false);
+        tested = true;
+    }
+    if (!licensed && !tao->blink(1.0, 0.2))
+        return;
+
+    uint prg_id = 0;
+    if(pgm)
+        prg_id = pgm->programId();
+
+    if(prg_id)
+    {
+        tao->SetShader(prg_id);
+
+        // Set texture parameters
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
+
+        // Set erosion parameters
+        glUniform3fv(uniforms["levels"], 1, levels);
+    }
+}
+

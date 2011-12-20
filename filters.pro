@@ -23,14 +23,14 @@ HEADERS = \
           filters.h \
           filtering.h \
           convolution_filter.h \
+          erosion.h \
           black_and_white.h \
-          erosion.h
 
 SOURCES = filters.cpp $${TAOTOPSRC}/tao/include/tao/GL/glew.c \
           filtering.cpp \
           convolution_filter.cpp \
+          erosion.cpp \
           black_and_white.cpp \
-          erosion.cpp
 
 TBL_SOURCES  = filters.tbl
 
@@ -44,7 +44,6 @@ INSTALLS    += thismod_icon
 LICENSE_FILES = filters.taokey.notsigned
 include(../licenses.pri)
 
-QMAKE_SUBSTITUTES = doc/Doxyfile.in
-DOXYFILE = doc/Doxyfile
-DOXYLANG = en,fr
-include(../modules_doc.pri)
+
+
+

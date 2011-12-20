@@ -32,118 +32,20 @@
 bool                  ConvolutionFilter::failed = false;
 QGLShaderProgram*     ConvolutionFilter::pgm = NULL;
 std::map<text, GLint> ConvolutionFilter::uniforms;
-const QGLContext*     ConvolutionFilter::context = NULL;
 
 ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit), w(w), h(h), level(0.0)
+    : unit(unit), w(w), h(h), level(0.0)
 {
-    IFTRACE(filters)
-            debug() << "Create convolution filter" << "\n";
-
-    checkGLContext();
-}
-
-
-ConvolutionFilter::~ConvolutionFilter()
-// ----------------------------------------------------------------------------
-//   Destruction
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void ConvolutionFilter::setLevel(float l)
-// ----------------------------------------------------------------------------
-//  Set the gray level
-// ----------------------------------------------------------------------------
-{
-    level = l;
-}
-
-
-void ConvolutionFilter::setKernel(float* k)
-// ----------------------------------------------------------------------------
-//  Set the convolution kernel 3x3
-// ----------------------------------------------------------------------------
-{
-    memcpy(kernel, k, sizeof(kernel));
-}
-
-
-void ConvolutionFilter::Draw()
-// ----------------------------------------------------------------------------
-//   Apply convolution filter
-// ----------------------------------------------------------------------------
-{
-    if (!tested)
+    if(!pgm && !failed)
     {
-        licensed = tao->checkImpressOrLicense("Filters 1.0");
-        tested = true;
-    }
-
-    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
-        return;
-
-    checkGLContext();
-
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
-    {
-        IFTRACE(filters)
-                debug() << "Apply convolution filter" << "\n";
-
-        // Set shader
-        tao->SetShader(prg_id);
-
-        // Set texture parameters
-        glUniform1i(uniforms["width"], w);
-        glUniform1i(uniforms["height"], h);
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
-
-        // Set convolution parameters
-        glUniform1f(uniforms["level"], level);
-        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
-    }
-}
-
-
-void ConvolutionFilter::createShaders()
-// ----------------------------------------------------------------------------
-//   Create shader programs
-// ----------------------------------------------------------------------------
-{
-    if(!failed)
-    {
-        IFTRACE(filters)
-                debug() << "Create shader for convolution filter" << "\n";
-
-        delete pgm;
-
-        pgm = new QGLShaderProgram(*pcontext);
+        pgm = new QGLShaderProgram();
         bool ok = false;
 
         // Basic vertex shader
         static string vSrc =
-                "/********************************************************************************\n"
-                "**                                                                               \n"
-                "** Copyright (C) 2011 Taodyne.                                                   \n"
-                "** All rights reserved.                                                          \n"
-                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-                "**                                                                               \n"
-                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-                "** It can be only used in the software and these modules.                        \n"
-                "**                                                                               \n"
-                "** If you have questions regarding the use of this file, please contact          \n"
-                "** Taodyne at contact@taodyne.com.                                               \n"
-                "**                                                                               \n"
-                "********************************************************************************/\n"
                 "varying vec4 color;"
                 "void main()"
                 "{"
@@ -159,19 +61,6 @@ void ConvolutionFilter::createShaders()
                 "}";
 
         static string fSrc =
-                "/********************************************************************************\n"
-                "**                                                                               \n"
-                "** Copyright (C) 2011 Taodyne.                                                   \n"
-                "** All rights reserved.                                                          \n"
-                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-                "**                                                                               \n"
-                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-                "** It can be only used in the software and these modules.                        \n"
-                "**                                                                               \n"
-                "** If you have questions regarding the use of this file, please contact          \n"
-                "** Taodyne at contact@taodyne.com.                                               \n"
-                "**                                                                               \n"
-                "********************************************************************************/\n"
                 "/* Filter parameters */"
                 "uniform int   width; "    //Texture width
                 "uniform int   height; "   //Texture height
@@ -256,12 +145,99 @@ void ConvolutionFilter::createShaders()
             // Save uniform locations
             uint id = pgm->programId();
             uniforms["width"]    = glGetUniformLocation(id, "width");
-            uniforms["height"]   = glGetUniformLocation(id, "height");
+            uniforms["height"] = glGetUniformLocation(id, "height");
             uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
             uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
 
             uniforms["level"]    = glGetUniformLocation(id, "level");
-            uniforms["kernel"]   = glGetUniformLocation(id, "kernel");
+            uniforms["kernel"]     = glGetUniformLocation(id, "kernel");
         }
     }
 }
+
+
+ConvolutionFilter::~ConvolutionFilter()
+// ----------------------------------------------------------------------------
+//   Destruction
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void ConvolutionFilter::setLevel(float l)
+// ----------------------------------------------------------------------------
+//  Set the gray level
+// ----------------------------------------------------------------------------
+{
+    level = l;
+}
+
+
+void ConvolutionFilter::setKernel(float* k)
+// ----------------------------------------------------------------------------
+//  Set the convolution kernel 3x3
+// ----------------------------------------------------------------------------
+{
+    memcpy(kernel, k, sizeof(kernel));
+}
+
+
+void ConvolutionFilter::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((ConvolutionFilter *)arg)->Draw();
+}
+
+
+void ConvolutionFilter::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void ConvolutionFilter::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (ConvolutionFilter *)arg;
+}
+
+
+void ConvolutionFilter::Draw()
+// ----------------------------------------------------------------------------
+//   Apply Convolution Filter
+// ----------------------------------------------------------------------------
+{
+    if (!tested)
+    {
+        licensed = tao->checkLicense("Filters 1.0", false);
+        tested = true;
+    }
+    if (!licensed && !tao->blink(1.0, 0.2))
+        return;
+
+    uint prg_id = 0;
+    if(pgm)
+        prg_id = pgm->programId();
+
+    if(prg_id)
+    {
+        tao->SetShader(prg_id);
+
+        // Set texture parameters
+        glUniform1i(uniforms["width"], w);
+        glUniform1i(uniforms["height"], h);
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
+
+        // Set convolution parameters
+        glUniform1f(uniforms["level"], level);
+        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
+    }
+}
+
