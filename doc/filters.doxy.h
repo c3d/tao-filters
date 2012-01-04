@@ -1,6 +1,5 @@
 /**
- * @defgroup Filters Filters
- * @ingroup Modules
+ * @taomoduledescription{Filters, Filters}
  *
  * Apply filters on imported images.
  *
@@ -13,6 +12,7 @@
  *
  * @note To improve performance in Tao, it is recommended to render to files the result texture before to reload it in Tao.
  *
+ * @endtaomoduledescription{Filters}
  * @{
  */
 
