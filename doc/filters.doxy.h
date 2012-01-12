@@ -64,7 +64,7 @@ gaussian(n:integer);
  * @note The result texture is obtained thanks to RenderToTexture module.
  *
  * @~french
- * Applique un filtre de moyenne sur la texture courante.
+ * Applique un filtre moyenneur sur la texture courante.
  * Ce filtre permet de réduire le bruit de l'image.
  *
  * @param n Nombre d'itérations du filtre.
