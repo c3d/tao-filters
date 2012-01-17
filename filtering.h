@@ -29,24 +29,18 @@ using namespace Tao;
 
 struct Filter : public QObject
 {
-    Filter(const QGLContext **pcontext);
+    Filter();
     ~Filter();
 
     // Draw filter
     virtual void    Draw();
-    // Re-create shaders if GL context has changed
-    void            checkGLContext();
-    virtual void    createShaders();
 
     static void     render_callback(void *arg);
     static void     identify_callback(void *arg);
     static void     delete_callback(void *arg);
 
-
 public:
-    const QGLContext    **pcontext;
 
-public:
     static bool tested, licensed;
 
     // Pointer to Tao functions
