@@ -22,7 +22,7 @@
  *
  * Ce module vous permet d'effectuer certains filtrages sur des textures.
  *
- * Par exemple, le code qui suit montre une détection de contours et un filtre
+ * Par exemple, le code qui suit montre une détection de contoures et un filtre
  * de flou itératif :
  * @include filters.ddd
  *

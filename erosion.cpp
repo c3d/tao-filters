@@ -248,7 +248,7 @@ void Erosion::Draw()
         licensed = tao->checkLicense("Filters 1.0", false);
         tested = true;
     }
-    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
+    if (!licensed && !tao->blink(1.0, 0.2))
         return;
 
     uint prg_id = 0;
