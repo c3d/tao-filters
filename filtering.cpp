@@ -31,11 +31,10 @@ bool Filter::licensed = false;
 //
 // ============================================================================
 
-Filter::Filter(const QGLContext **pcontext)
+Filter::Filter()
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : pcontext(pcontext)
 {
 }
 
@@ -74,29 +73,5 @@ void Filter::delete_callback(void *arg)
 
 
 void Filter::Draw()
-// ----------------------------------------------------------------------------
-//   Draw filter
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void Filter::checkGLContext()
-// ----------------------------------------------------------------------------
-//   Re-create context-dependent resources if GL context has changed
-// ----------------------------------------------------------------------------
-{
-    if (*pcontext != QGLContext::currentContext())
-    {
-        createShaders();
-        *pcontext = QGLContext::currentContext();
-    }
-}
-
-
-void Filter::createShaders()
-// ----------------------------------------------------------------------------
-//   Create shader programs for the material
-// ----------------------------------------------------------------------------
 {
 }

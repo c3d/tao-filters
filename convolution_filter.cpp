@@ -32,106 +32,12 @@
 bool                  ConvolutionFilter::failed = false;
 QGLShaderProgram*     ConvolutionFilter::pgm = NULL;
 std::map<text, GLint> ConvolutionFilter::uniforms;
-const QGLContext*     ConvolutionFilter::context = NULL;
 
 ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit), w(w), h(h), level(0.0)
-{
-    checkGLContext();
-}
-
-
-ConvolutionFilter::~ConvolutionFilter()
-// ----------------------------------------------------------------------------
-//   Destruction
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void ConvolutionFilter::setLevel(float l)
-// ----------------------------------------------------------------------------
-//  Set the gray level
-// ----------------------------------------------------------------------------
-{
-    level = l;
-}
-
-
-void ConvolutionFilter::setKernel(float* k)
-// ----------------------------------------------------------------------------
-//  Set the convolution kernel 3x3
-// ----------------------------------------------------------------------------
-{
-    memcpy(kernel, k, sizeof(kernel));
-}
-
-
-void ConvolutionFilter::render_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Rendering callback: call the render function for the object
-// ----------------------------------------------------------------------------
-{
-    ((ConvolutionFilter *)arg)->Draw();
-}
-
-
-void ConvolutionFilter::identify_callback(void *)
-// ----------------------------------------------------------------------------
-//   Identify callback: don't do anything
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void ConvolutionFilter::delete_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Delete callback: destroy object
-// ----------------------------------------------------------------------------
-{
-    delete (ConvolutionFilter *)arg;
-}
-
-
-void ConvolutionFilter::Draw()
-// ----------------------------------------------------------------------------
-//   Apply Convolution Filter
-// ----------------------------------------------------------------------------
-{
-    if (!tested)
-    {
-        licensed = tao->checkLicense("Filters 1.0", false);
-        tested = true;
-    }
-    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
-        return;
-
-    checkGLContext();
-
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
-    {
-        tao->SetShader(prg_id);
-
-        // Set texture parameters
-        glUniform1i(uniforms["width"], w);
-        glUniform1i(uniforms["height"], h);
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
-
-        // Set convolution parameters
-        glUniform1f(uniforms["level"], level);
-        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
-    }
-}
-
-void ConvolutionFilter::createShaders()
+    : unit(unit), w(w), h(h), level(0.0)
 {
     if(!pgm && !failed)
     {
@@ -265,12 +171,99 @@ void ConvolutionFilter::createShaders()
             // Save uniform locations
             uint id = pgm->programId();
             uniforms["width"]    = glGetUniformLocation(id, "width");
-            uniforms["height"]   = glGetUniformLocation(id, "height");
+            uniforms["height"] = glGetUniformLocation(id, "height");
             uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
             uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
 
             uniforms["level"]    = glGetUniformLocation(id, "level");
-            uniforms["kernel"]   = glGetUniformLocation(id, "kernel");
+            uniforms["kernel"]     = glGetUniformLocation(id, "kernel");
         }
     }
 }
+
+
+ConvolutionFilter::~ConvolutionFilter()
+// ----------------------------------------------------------------------------
+//   Destruction
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void ConvolutionFilter::setLevel(float l)
+// ----------------------------------------------------------------------------
+//  Set the gray level
+// ----------------------------------------------------------------------------
+{
+    level = l;
+}
+
+
+void ConvolutionFilter::setKernel(float* k)
+// ----------------------------------------------------------------------------
+//  Set the convolution kernel 3x3
+// ----------------------------------------------------------------------------
+{
+    memcpy(kernel, k, sizeof(kernel));
+}
+
+
+void ConvolutionFilter::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((ConvolutionFilter *)arg)->Draw();
+}
+
+
+void ConvolutionFilter::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void ConvolutionFilter::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (ConvolutionFilter *)arg;
+}
+
+
+void ConvolutionFilter::Draw()
+// ----------------------------------------------------------------------------
+//   Apply Convolution Filter
+// ----------------------------------------------------------------------------
+{
+    if (!tested)
+    {
+        licensed = tao->checkLicense("Filters 1.0", false);
+        tested = true;
+    }
+    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
+        return;
+
+    uint prg_id = 0;
+    if(pgm)
+        prg_id = pgm->programId();
+
+    if(prg_id)
+    {
+        tao->SetShader(prg_id);
+
+        // Set texture parameters
+        glUniform1i(uniforms["width"], w);
+        glUniform1i(uniforms["height"], h);
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
+
+        // Set convolution parameters
+        glUniform1f(uniforms["level"], level);
+        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
+    }
+}
+

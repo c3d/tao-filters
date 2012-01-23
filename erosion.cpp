@@ -29,111 +29,12 @@
 bool                  Erosion::failed = false;
 QGLShaderProgram*     Erosion::pgm = NULL;
 std::map<text, GLint> Erosion::uniforms;
-const QGLContext*     Erosion::context = NULL;
 
 Erosion::Erosion(uint unit, float x, float y, float threshold)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit), x(x), y(y), threshold(threshold), radius(1.0)
-{
-    checkGLContext();
-}
-
-
-Erosion::~Erosion()
-// ----------------------------------------------------------------------------
-//   Destruction
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void Erosion::setColor(GLfloat erode_color[3])
-// ----------------------------------------------------------------------------
-//   Set erosion color
-// ----------------------------------------------------------------------------
-{
-    color[0] = erode_color[0];
-    color[1] = erode_color[1];
-    color[2] = erode_color[2];
-}
-
-
-void Erosion::setRadius(float r)
-// ----------------------------------------------------------------------------
-//   Set erosion radius
-// ----------------------------------------------------------------------------
-{
-    radius = r;
-}
-
-
-void Erosion::render_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Rendering callback: call the render function for the object
-// ----------------------------------------------------------------------------
-{
-    ((Erosion *)arg)->Draw();
-}
-
-
-void Erosion::identify_callback(void *)
-// ----------------------------------------------------------------------------
-//   Identify callback: don't do anything
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void Erosion::delete_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Delete callback: destroy object
-// ----------------------------------------------------------------------------
-{
-    delete (Erosion *)arg;
-}
-
-
-void Erosion::Draw()
-// ----------------------------------------------------------------------------
-//   Apply Convolution Filter
-// ----------------------------------------------------------------------------
-{
-    if (!tested)
-    {
-        licensed = tao->checkLicense("Filters 1.0", false);
-        tested = true;
-    }
-    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
-        return;
-
-    checkGLContext();
-
-    uint prg_id = 0;
-    if(pgm)
-        prg_id = pgm->programId();
-
-    if(prg_id)
-    {
-        tao->SetShader(prg_id);
-
-        // Set texture parameters
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
-
-        // Set erosion parameters
-        glUniform1f(uniforms["radius"], radius);
-        glUniform1f(uniforms["threshold"], threshold);
-        glUniform3fv(uniforms["color"], 1, color);
-
-        GLfloat center[2] = {x, y};
-        glUniform2fv(uniforms["center"], 1, center);
-    }
-}
-
-
-void Erosion::createShaders()
+    : unit(unit), x(x), y(y), threshold(threshold), radius(1.0)
 {
     if(!pgm && !failed)
     {
@@ -270,14 +171,105 @@ void Erosion::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            uniforms["texUnit"]   = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"]  = glGetUniformLocation(id, "colorMap");
+            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
+            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
 
             uniforms["radius"]    = glGetUniformLocation(id, "radius");
             uniforms["threshold"] = glGetUniformLocation(id, "threshold");
             uniforms["center"]    = glGetUniformLocation(id, "center");
             uniforms["color"]     = glGetUniformLocation(id, "color");
         }
+    }
+
+}
+
+
+Erosion::~Erosion()
+// ----------------------------------------------------------------------------
+//   Destruction
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void Erosion::setColor(GLfloat erode_color[3])
+// ----------------------------------------------------------------------------
+//   Set erosion color
+// ----------------------------------------------------------------------------
+{
+    color[0] = erode_color[0];
+    color[1] = erode_color[1];
+    color[2] = erode_color[2];
+}
+
+
+void Erosion::setRadius(float r)
+// ----------------------------------------------------------------------------
+//   Set erosion radius
+// ----------------------------------------------------------------------------
+{
+    radius = r;
+}
+
+
+void Erosion::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((Erosion *)arg)->Draw();
+}
+
+
+void Erosion::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void Erosion::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (Erosion *)arg;
+}
+
+
+void Erosion::Draw()
+// ----------------------------------------------------------------------------
+//   Apply Convolution Filter
+// ----------------------------------------------------------------------------
+{
+    if (!tested)
+    {
+        licensed = tao->checkLicense("Filters 1.0", false);
+        tested = true;
+    }
+    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
+        return;
+
+    uint prg_id = 0;
+    if(pgm)
+        prg_id = pgm->programId();
+
+    if(prg_id)
+    {
+        tao->SetShader(prg_id);
+
+        // Set texture parameters
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
+
+        // Set erosion parameters
+        glUniform1f(uniforms["radius"], radius);
+        glUniform1f(uniforms["threshold"], threshold);
+        glUniform3fv(uniforms["color"], 1, color);
+
+        GLfloat center[2] = {x, y};
+        glUniform2fv(uniforms["center"], 1, center);
     }
 }
 
