@@ -28,7 +28,7 @@
  *
  * @image html filters.png "Application de filtres d'images"
  *
- * @note Pour améliorer les performance, vous pouvez enregister le résultat
+ * @note Pour améliorer les performances, vous pouvez enregister le résultat
  * dans un fichier puis le charger sous forme de texture.
  *
  * @endtaomoduledescription{Filters}
