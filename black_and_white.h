@@ -41,6 +41,9 @@ struct BlackAndWhite : public Filter
     static void     identify_callback(void *arg);
     static void     delete_callback(void *arg);
 
+protected:
+    virtual void    createShaders();
+
  private:
    uint    unit;       // texture parameters
    GLfloat levels[3];  // color levels
@@ -48,6 +51,7 @@ struct BlackAndWhite : public Filter
    static bool failed;
    static QGLShaderProgram* pgm;
    static std::map<text, GLint> uniforms;
+   static const QGLContext* context;
 };
 
 
