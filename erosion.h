@@ -1,4 +1,4 @@
-﻿#ifndef EROSION_H
+#ifndef EROSION_H
 #define EROSION_H
 // ****************************************************************************
 //  erosion.h                                                       Tao project
@@ -38,25 +38,21 @@ struct Erosion : public Filter
     // Draw erosion filter
     virtual void    Draw();
 
-    static void     render_callback(void *arg);
-    static void     identify_callback(void *arg);
-    static void     delete_callback(void *arg);
-
 protected:
     virtual void    createShaders();
 
- private:
-   uint    unit;      // texture parameters
-   GLfloat color[3];  // erosion color
-   float   x, y;      // erosion center
-   float   threshold; // erosion threshold
-   float   radius;    // erosion radius
+private:
+    uint    unit;      // texture parameters
+    GLfloat color[3];  // erosion color
+    float   x, y;      // erosion center
+    float   threshold; // erosion threshold
+    float   radius;    // erosion radius
 
-   static bool failed;
-   static QGLShaderProgram* pgm;
-   static std::map<text, GLint> uniforms;
-   static const QGLContext* context;
+    static bool failed;
+    static QGLShaderProgram* pgm;
+    static std::map<text, GLint> uniforms;
+    static const QGLContext* context;
 };
 
 
-#endif
+#endif // CEL_SHADING_H
