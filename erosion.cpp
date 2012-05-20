@@ -37,9 +37,6 @@ Erosion::Erosion(uint unit, float x, float y, float threshold)
 // ----------------------------------------------------------------------------
     : Filter(&context), unit(unit), x(x), y(y), threshold(threshold), radius(1.0)
 {
-    IFTRACE(filters)
-            debug() << "Create black and white filter" << "\n";
-
     checkGLContext();
 }
 
@@ -72,9 +69,35 @@ void Erosion::setRadius(float r)
 }
 
 
+void Erosion::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((Erosion *)arg)->Draw();
+}
+
+
+void Erosion::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void Erosion::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (Erosion *)arg;
+}
+
+
 void Erosion::Draw()
 // ----------------------------------------------------------------------------
-//   Apply erosion filter
+//   Apply Convolution Filter
 // ----------------------------------------------------------------------------
 {
     if (!tested)
@@ -82,8 +105,7 @@ void Erosion::Draw()
         licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
-
-    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
+    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
         return;
 
     checkGLContext();
@@ -94,10 +116,6 @@ void Erosion::Draw()
 
     if(prg_id)
     {
-        IFTRACE(filters)
-                debug() << "Apply erosion filter" << "\n";
-
-        // Set shader
         tao->SetShader(prg_id);
 
         // Set texture parameters
@@ -116,18 +134,10 @@ void Erosion::Draw()
 
 
 void Erosion::createShaders()
-// ----------------------------------------------------------------------------
-//   Create shader programs
-// ----------------------------------------------------------------------------
 {
-    if(!failed)
+    if(!pgm && !failed)
     {
-        IFTRACE(filters)
-                debug() << "Create shader for erosion filter" << "\n";
-
-        delete pgm;
-
-        pgm = new QGLShaderProgram(*pcontext);
+        pgm = new QGLShaderProgram();
         bool ok = false;
 
         // Basic vertex shader
@@ -187,48 +197,48 @@ void Erosion::createShaders()
                 "/* Erode main color according to the erode color and threshold */"
                 "void erode(vec3 mainColor, vec3 erodeColor)"
                 "{"
-                "if(erodeColor.r + threshold >= mainColor.r"
-                "&& erodeColor.g + threshold >= mainColor.g"
-                "&& erodeColor.b + threshold >= mainColor.b)"
-                "{"
-                "if(erodeColor.r - threshold <= mainColor.r"
-                "&& erodeColor.g - threshold <= mainColor.g"
-                "&& erodeColor.b - threshold <= mainColor.b)"
-                "{"
-                "discard;"
-                "}"
-                "}"
+                    "if(erodeColor.r + threshold >= mainColor.r"
+                    "&& erodeColor.g + threshold >= mainColor.g"
+                    "&& erodeColor.b + threshold >= mainColor.b)"
+                    "{"
+                        "if(erodeColor.r - threshold <= mainColor.r"
+                        "&& erodeColor.g - threshold <= mainColor.g"
+                        "&& erodeColor.b - threshold <= mainColor.b)"
+                        "{"
+                            "discard;"
+                        "}"
+                    "}"
                 "}"
 
                 "void main()"
                 "{"
-                "/* Get the correct texture coordinates */"
-                "vec2 texCoords = vec2(0.0);"
-                "if(texUnit == 0)"
-                "texCoords = gl_TexCoord[0].st;"
-                "if(texUnit == 1)"
-                "texCoords = gl_TexCoord[1].st;"
-                "if(texUnit == 2)"
-                "texCoords = gl_TexCoord[2].st;"
-                "if(texUnit == 3)"
-                "texCoords = gl_TexCoord[3].st;"
+                    "/* Get the correct texture coordinates */"
+                    "vec2 texCoords = vec2(0.0);"
+                    "if(texUnit == 0)"
+                        "texCoords = gl_TexCoord[0].st;"
+                    "if(texUnit == 1)"
+                        "texCoords = gl_TexCoord[1].st;"
+                    "if(texUnit == 2)"
+                        "texCoords = gl_TexCoord[2].st;"
+                    "if(texUnit == 3)"
+                        "texCoords = gl_TexCoord[3].st;"
 
-                "vec4 mainColor = texture2D(colorMap, texCoords);"
+                    "vec4 mainColor = texture2D(colorMap, texCoords);"
 
-                "vec3 erodeColor;"
-                "/* If color is not set, get center color to erode */"
-                "if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)"
-                "erodeColor = texture2D(colorMap, center).rgb;"
+                    "vec3 erodeColor;"
+                    "/* If color is not set, get center color to erode */"
+                    "if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)"
+                        "erodeColor = texture2D(colorMap, center).rgb;"
 
-                "/* Filtering inside a circle */"
-                "if((gl_TexCoord[0].s - center.x) *"
-                "(gl_TexCoord[0].s - center.x) +"
-                "(gl_TexCoord[0].t - center.y) *"
-                "(gl_TexCoord[0].t - center.y) <= radius * radius)"
+                    "/* Filtering inside a circle */"
+                    "if((gl_TexCoord[0].s - center.x) *"
+                       "(gl_TexCoord[0].s - center.x) +"
+                       "(gl_TexCoord[0].t - center.y) *"
+                       "(gl_TexCoord[0].t - center.y) <= radius * radius)"
 
-                "erode(mainColor.rgb, erodeColor);"
+                        "erode(mainColor.rgb, erodeColor);"
 
-                "gl_FragColor  = mainColor * baseColor;"
+                    "gl_FragColor  = mainColor * baseColor;"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
@@ -270,3 +280,4 @@ void Erosion::createShaders()
         }
     }
 }
+

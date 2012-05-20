@@ -40,9 +40,6 @@ ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
 // ----------------------------------------------------------------------------
     : Filter(&context), unit(unit), w(w), h(h), level(0.0)
 {
-    IFTRACE(filters)
-            debug() << "Create convolution filter" << "\n";
-
     checkGLContext();
 }
 
@@ -73,9 +70,35 @@ void ConvolutionFilter::setKernel(float* k)
 }
 
 
+void ConvolutionFilter::render_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Rendering callback: call the render function for the object
+// ----------------------------------------------------------------------------
+{
+    ((ConvolutionFilter *)arg)->Draw();
+}
+
+
+void ConvolutionFilter::identify_callback(void *)
+// ----------------------------------------------------------------------------
+//   Identify callback: don't do anything
+// ----------------------------------------------------------------------------
+{
+}
+
+
+void ConvolutionFilter::delete_callback(void *arg)
+// ----------------------------------------------------------------------------
+//   Delete callback: destroy object
+// ----------------------------------------------------------------------------
+{
+    delete (ConvolutionFilter *)arg;
+}
+
+
 void ConvolutionFilter::Draw()
 // ----------------------------------------------------------------------------
-//   Apply convolution filter
+//   Apply Convolution Filter
 // ----------------------------------------------------------------------------
 {
     if (!tested)
@@ -83,8 +106,7 @@ void ConvolutionFilter::Draw()
         licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
-
-    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
+    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
         return;
 
     checkGLContext();
@@ -95,10 +117,6 @@ void ConvolutionFilter::Draw()
 
     if(prg_id)
     {
-        IFTRACE(filters)
-                debug() << "Apply convolution filter" << "\n";
-
-        // Set shader
         tao->SetShader(prg_id);
 
         // Set texture parameters
@@ -113,20 +131,11 @@ void ConvolutionFilter::Draw()
     }
 }
 
-
 void ConvolutionFilter::createShaders()
-// ----------------------------------------------------------------------------
-//   Create shader programs
-// ----------------------------------------------------------------------------
 {
-    if(!failed)
+    if(!pgm && !failed)
     {
-        IFTRACE(filters)
-                debug() << "Create shader for convolution filter" << "\n";
-
-        delete pgm;
-
-        pgm = new QGLShaderProgram(*pcontext);
+        pgm = new QGLShaderProgram();
         bool ok = false;
 
         // Basic vertex shader
