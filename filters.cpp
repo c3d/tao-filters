@@ -23,6 +23,7 @@
 #include "coords3d.h"
 
 XL_DEFINE_TRACES
+
 static GLfloat erodeRadius   = 1.0;
 static GLfloat erodeColor[3] = {2.0, 2.0, 2.0};
 
@@ -50,11 +51,12 @@ Tree_p gaussian(Tree_p, uint unit, uint width, uint height)
     ConvolutionFilter* conv = new ConvolutionFilter(unit, width, height);
     conv->setKernel(kernel);
     conv->setLevel(0.0);
-    ConvolutionFilter::tao->AddToLayout2(ConvolutionFilter::render_callback,
-                                         ConvolutionFilter::identify_callback,
-                                         conv, ConvolutionFilter::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              conv, Filter::delete_callback);
     return xl_true;
 }
+
 
 Tree_p mean(Tree_p, uint unit, uint width, uint height)
 // ----------------------------------------------------------------------------
@@ -72,11 +74,12 @@ Tree_p mean(Tree_p, uint unit, uint width, uint height)
     ConvolutionFilter* conv = new ConvolutionFilter(unit, width, height);
     conv->setKernel(kernel);
     conv->setLevel(0.0);
-    ConvolutionFilter::tao->AddToLayout2(ConvolutionFilter::render_callback,
-                                         ConvolutionFilter::identify_callback,
-                                         conv, ConvolutionFilter::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              conv, Filter::delete_callback);
     return xl_true;
 }
+
 
 Tree_p emboss(Tree_p, uint unit, uint width, uint height)
 // ----------------------------------------------------------------------------
@@ -94,9 +97,9 @@ Tree_p emboss(Tree_p, uint unit, uint width, uint height)
     ConvolutionFilter* conv = new ConvolutionFilter(unit, width, height);
     conv->setKernel(kernel);
     conv->setLevel(0.5);
-    ConvolutionFilter::tao->AddToLayout2(ConvolutionFilter::render_callback,
-                                         ConvolutionFilter::identify_callback,
-                                         conv, ConvolutionFilter::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              conv, Filter::delete_callback);
     return xl_true;
 }
 
@@ -117,9 +120,9 @@ Tree_p sharpness(Tree_p, uint unit, uint width, uint height)
     ConvolutionFilter* conv = new ConvolutionFilter(unit, width, height);
     conv->setKernel(kernel);
     conv->setLevel(0.0);
-    ConvolutionFilter::tao->AddToLayout2(ConvolutionFilter::render_callback,
-                                         ConvolutionFilter::identify_callback,
-                                         conv, ConvolutionFilter::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              conv, Filter::delete_callback);
     return xl_true;
 }
 
@@ -140,9 +143,9 @@ Tree_p laplacian(Tree_p, uint unit, uint width, uint height)
     ConvolutionFilter* conv = new ConvolutionFilter(unit, width, height);
     conv->setKernel(kernel);
     conv->setLevel(0.5);
-    ConvolutionFilter::tao->AddToLayout2(ConvolutionFilter::render_callback,
-                                         ConvolutionFilter::identify_callback,
-                                         conv, ConvolutionFilter::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              conv, Filter::delete_callback);
     return xl_true;
 }
 
@@ -152,7 +155,6 @@ Tree_p laplacian(Tree_p, uint unit, uint width, uint height)
 //   Erosion filter
 //
 // ============================================================================
-
 
 Tree_p erode_radius(Tree_p, Real_p r)
 // ----------------------------------------------------------------------------
@@ -187,9 +189,9 @@ Tree_p erode(Tree_p, uint unit, Real_p x, Real_p y, Real_p threshold)
     erosion->setColor(erodeColor);
     erosion->setRadius(erodeRadius);
 
-    Erosion::tao->AddToLayout2(Erosion::render_callback,
-                               Erosion::identify_callback,
-                               erosion, Erosion::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              erosion, Filter::delete_callback);
     return xl_true;
 }
 
@@ -199,7 +201,6 @@ Tree_p erode(Tree_p, uint unit, Real_p x, Real_p y, Real_p threshold)
 //   Black and white filter
 //
 // ============================================================================
-
 
 Tree_p black_and_white_levels(Tree_p, Real_p r, Real_p g, Real_p b)
 // ----------------------------------------------------------------------------
@@ -222,9 +223,9 @@ Tree_p black_and_white(Tree_p, uint unit)
     BlackAndWhite* bw = new BlackAndWhite(unit);
     bw->setLevels(levels);
 
-    BlackAndWhite::tao->AddToLayout2(BlackAndWhite::render_callback,
-                                     BlackAndWhite::identify_callback,
-                                     bw, BlackAndWhite::delete_callback);
+    Filter::tao->AddToLayout2(Filter::render_callback,
+                              Filter::identify_callback,
+                              bw, Filter::delete_callback);
     return xl_true;
 }
 
