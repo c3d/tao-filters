@@ -77,7 +77,6 @@ PREFIX(Laplacian,  tree, "laplacian",
        DESCRIPTION("Apply a laplacian filter on the current texture."
                    "It can be used to detect oulines of an image for instance."))
 
-
 // ============================================================================
 //
 //   Erosion filter
@@ -109,7 +108,6 @@ PREFIX(Erode,  tree, "erode",
        GROUP(module.Filters)
        SYNOPSIS("Apply Erosion filter")
        DESCRIPTION("Apply an Erosion filter"))
-
 
 // ============================================================================
 //
