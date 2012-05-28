@@ -1,4 +1,4 @@
-#ifndef CONVOLUTION_FILTER_H
+﻿#ifndef CONVOLUTION_FILTER_H
 #define CONVOLUTION_FILTER_H
 // ****************************************************************************
 //  convolution_filter.h                                            Tao project
@@ -27,7 +27,6 @@
 using namespace std;
 using namespace Tao;
 
-
 struct ConvolutionFilter : public Filter
 {
     ConvolutionFilter(uint unit, uint w, uint h);
@@ -39,19 +38,23 @@ struct ConvolutionFilter : public Filter
     // Draw convolution filter
     virtual void    Draw();
 
+    static void     render_callback(void *arg);
+    static void     identify_callback(void *arg);
+    static void     delete_callback(void *arg);
+
 protected:
     virtual void    createShaders();
 
-private:
-    uint  unit, w, h; // texture parameters
-    float level;      // gray level
-    float kernel[9];  // convolution kernel
+ private:
+   uint  unit, w, h; // texture parameters
+   float level;     // gray level
+   float kernel[9]; // convolution kernel
 
-    static bool failed;
-    static QGLShaderProgram* pgm;
-    static std::map<text, GLint> uniforms;
-    static const QGLContext* context;
+   static bool failed;
+   static QGLShaderProgram* pgm;
+   static std::map<text, GLint> uniforms;
+   static const QGLContext* context;
 };
 
 
-#endif // CEL_SHADING_H
+#endif

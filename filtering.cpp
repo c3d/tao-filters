@@ -39,7 +39,6 @@ Filter::Filter(const QGLContext **pcontext)
 {
 }
 
-
 Filter::~Filter()
 // ----------------------------------------------------------------------------
 //   Destruction
@@ -57,12 +56,11 @@ void Filter::render_callback(void *arg)
 }
 
 
-void Filter::identify_callback(void *arg)
+void Filter::identify_callback(void *)
 // ----------------------------------------------------------------------------
 //   Identify callback: don't do anything
 // ----------------------------------------------------------------------------
 {
-    (void) arg;
 }
 
 
@@ -88,31 +86,17 @@ void Filter::checkGLContext()
 //   Re-create context-dependent resources if GL context has changed
 // ----------------------------------------------------------------------------
 {
-    tao->makeGLContextCurrent();
     if (*pcontext != QGLContext::currentContext())
     {
-        IFTRACE(filters)
-                debug() << "Context has changed" << "\n";
-
-        *pcontext = QGLContext::currentContext();
         createShaders();
+        *pcontext = QGLContext::currentContext();
     }
 }
 
 
 void Filter::createShaders()
 // ----------------------------------------------------------------------------
-//   Create shader programs for shading effect
+//   Create shader programs for the material
 // ----------------------------------------------------------------------------
 {
-}
-
-
-std::ostream & Filter::debug()
-// ----------------------------------------------------------------------------
-//   Convenience method to log with a common prefix
-// ----------------------------------------------------------------------------
-{
-    std::cerr << "[Filters] " << (void*)this << " ";
-    return std::cerr;
 }
