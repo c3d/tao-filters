@@ -93,7 +93,7 @@ void BlackAndWhite::Draw()
 {
     if (!tested)
     {
-        licensed = tao->checkLicense("Filters 1.0", false);
+        licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
     if (!licensed && !tao->blink(1.0, 0.2, 300.0))
