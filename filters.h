@@ -27,9 +27,10 @@
 #include "runtime.h"
 #include "base.h"
 #include "tao/module_api.h"
+#include "filtering.h"
 #include "convolution_filter.h"
-#include "erosion.h"
 #include "black_and_white.h"
+#include "erosion.h"
 
 using namespace XL;
 

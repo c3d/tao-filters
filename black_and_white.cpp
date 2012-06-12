@@ -31,12 +31,16 @@ QGLShaderProgram*     BlackAndWhite::pgm = NULL;
 std::map<text, GLint> BlackAndWhite::uniforms;
 const QGLContext*     BlackAndWhite::context = NULL;
 
+
 BlackAndWhite::BlackAndWhite(uint unit)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
     : Filter(&context), unit(unit)
 {
+    IFTRACE(filters)
+            debug() << "Create black and white filter" << "\n";
+
     checkGLContext();
 }
 
@@ -60,35 +64,9 @@ void BlackAndWhite::setLevels(GLfloat color_levels[3])
 }
 
 
-void BlackAndWhite::render_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Rendering callback: call the render function for the object
-// ----------------------------------------------------------------------------
-{
-    ((BlackAndWhite *)arg)->Draw();
-}
-
-
-void BlackAndWhite::identify_callback(void *)
-// ----------------------------------------------------------------------------
-//   Identify callback: don't do anything
-// ----------------------------------------------------------------------------
-{
-}
-
-
-void BlackAndWhite::delete_callback(void *arg)
-// ----------------------------------------------------------------------------
-//   Delete callback: destroy object
-// ----------------------------------------------------------------------------
-{
-    delete (BlackAndWhite *)arg;
-}
-
-
 void BlackAndWhite::Draw()
 // ----------------------------------------------------------------------------
-//   Apply Convolution Filter
+//   Apply black and white filter
 // ----------------------------------------------------------------------------
 {
     if (!tested)
@@ -96,7 +74,8 @@ void BlackAndWhite::Draw()
         licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
-    if (!licensed && !tao->blink(1.0, 0.2, 300.0))
+
+    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
         return;
 
     checkGLContext();
@@ -107,6 +86,10 @@ void BlackAndWhite::Draw()
 
     if(prg_id)
     {
+        IFTRACE(filters)
+                debug() << "Apply black and white filter" << "\n";
+
+        // Set shader
         tao->SetShader(prg_id);
 
         // Set texture parameters
@@ -118,11 +101,20 @@ void BlackAndWhite::Draw()
     }
 }
 
+
 void BlackAndWhite::createShaders()
+// ----------------------------------------------------------------------------
+//   Create shader programs
+// ----------------------------------------------------------------------------
 {
-    if(!pgm && !failed)
+    if(!failed)
     {
-        pgm = new QGLShaderProgram();
+        IFTRACE(filters)
+                debug() << "Create shader for black and white filter" << "\n";
+
+        delete pgm;
+
+        pgm = new QGLShaderProgram(*pcontext);
         bool ok = false;
 
         // Basic vertex shader
@@ -229,4 +221,3 @@ void BlackAndWhite::createShaders()
         }
     }
 }
-
