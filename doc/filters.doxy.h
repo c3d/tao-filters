@@ -9,7 +9,7 @@
  * For example, the following code will show how to detect outlines and add some iterative blur to it.
  * @include filters.ddd
  *
- * @image html filters.png "Output of filters.ddd"
+ * @image html filters.png "Filters applied to an image"
  *
  * @note To improve performance in Tao, it is recommended to render to files the result texture before to reload it in Tao.
  *
