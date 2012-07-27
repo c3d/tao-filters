@@ -71,9 +71,12 @@ void BlackAndWhite::Draw()
 {
     if (!tested)
     {
-        licensed = tao->checkImpressOrLicense("Filters 1.004");
+        licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
+
+    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
+        return;
 
     checkGLContext();
 
