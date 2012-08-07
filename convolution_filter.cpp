@@ -84,9 +84,6 @@ void ConvolutionFilter::Draw()
         tested = true;
     }
 
-    if (!licensed && !tao->blink(1.0, 1.0, 300.0))
-        return;
-
     checkGLContext();
 
     uint prg_id = 0;
