@@ -16,8 +16,6 @@ include(../modules.pri)
 
 
 
-DEFINES     += GLEW_STATIC
-
 INCLUDEPATH += $${TAOTOPSRC}/tao/include/tao/
 HEADERS = \
           filters.h \
@@ -26,11 +24,16 @@ HEADERS = \
           black_and_white.h \
           erosion.h
 
-SOURCES = filters.cpp $${TAOTOPSRC}/tao/include/tao/GL/glew.c \
+SOURCES = filters.cpp \
           filtering.cpp \
           convolution_filter.cpp \
           black_and_white.cpp \
           erosion.cpp
+
+win32 {
+    DEFINES     += GLEW_STATIC
+    SOURCE      += $${TAOTOPSRC}/tao/include/tao/GL/glew.c
+}
 
 TBL_SOURCES  = filters.tbl
 
