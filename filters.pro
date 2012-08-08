@@ -32,7 +32,7 @@ SOURCES = filters.cpp \
 
 win32 {
     DEFINES     += GLEW_STATIC
-    SOURCE      += $${TAOTOPSRC}/tao/include/tao/GL/glew.c
+    SOURCES     += $${TAOTOPSRC}/tao/include/tao/GL/glew.c
 }
 
 TBL_SOURCES  = filters.tbl
