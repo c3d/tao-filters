@@ -80,7 +80,7 @@ void ConvolutionFilter::Draw()
 {
     if (!tested)
     {
-        licensed = tao->checkImpressOrLicense("Filters 1.004");
+        licensed = tao->checkImpressOrLicense("Filters 1.0");
         tested = true;
     }
 
