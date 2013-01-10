@@ -71,7 +71,7 @@ void BlackAndWhite::Draw()
 {
     if (!tested)
     {
-        licensed = tao->checkImpressOrLicense("Filters 1.004");
+        licensed = tao->checkImpressOrLicense("Filters 1.005");
         tested = true;
     }
 
