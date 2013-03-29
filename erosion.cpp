@@ -31,7 +31,9 @@ QGLShaderProgram*     Erosion::pgm = NULL;
 std::map<text, GLint> Erosion::uniforms;
 const QGLContext*     Erosion::context = NULL;
 
-Erosion::Erosion(uint unit, float x, float y, float threshold)
+#define GL (*graphic_state)
+
+Erosion::Erosion(int unit, float x, float y, float threshold)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -98,16 +100,16 @@ void Erosion::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
+        GL.Uniform(uniforms["texUnit"], unit);
+        GL.Uniform(uniforms["colorMap"], unit);
 
         // Set erosion parameters
-        glUniform1f(uniforms["radius"], radius);
-        glUniform1f(uniforms["threshold"], threshold);
-        glUniform3fv(uniforms["color"], 1, color);
+        GL.Uniform(uniforms["radius"], radius);
+        GL.Uniform(uniforms["threshold"], threshold);
+        GL.Uniform3fv(uniforms["color"], 1, color);
 
         GLfloat center[2] = {x, y};
-        glUniform2fv(uniforms["center"], 1, center);
+        GL.Uniform2fv(uniforms["center"], 1, center);
     }
 }
 

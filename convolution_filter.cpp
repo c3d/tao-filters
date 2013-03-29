@@ -31,10 +31,15 @@
 
 bool                  ConvolutionFilter::failed = false;
 QGLShaderProgram*     ConvolutionFilter::pgm = NULL;
-std::map<text, GLint> ConvolutionFilter::uniforms;
+std::map<text, GLuint> ConvolutionFilter::uniforms;
 const QGLContext*     ConvolutionFilter::context = NULL;
 
-ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
+
+#define GL (*graphic_state)
+DLL_PUBLIC Tao::GraphicState * graphic_state = NULL;
+
+
+ConvolutionFilter::ConvolutionFilter(int unit, int w, int h)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -99,14 +104,14 @@ void ConvolutionFilter::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        glUniform1i(uniforms["width"], w);
-        glUniform1i(uniforms["height"], h);
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
+        GL.Uniform(uniforms["width"], w);
+        GL.Uniform(uniforms["height"], h);
+        GL.Uniform(uniforms["texUnit"], unit);
+        GL.Uniform(uniforms["colorMap"], unit);
 
         // Set convolution parameters
-        glUniform1f(uniforms["level"], level);
-        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
+        GL.Uniform(uniforms["level"], level);
+        GL.Uniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
     }
 }
 
