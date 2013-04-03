@@ -144,7 +144,6 @@ void Erosion::createShaders()
                 "** Taodyne at contact@taodyne.com.                                               \n"
                 "**                                                                               \n"
                 "********************************************************************************/\n"
-                "varying vec4 baseColor;"
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
@@ -154,8 +153,6 @@ void Erosion::createShaders()
                 "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
                 "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
                 "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
-
-                "   baseColor = gl_Color;"
                 "}";
 
         static string fSrc =
@@ -180,8 +177,6 @@ void Erosion::createShaders()
 
                 "uniform int       texUnit;"
                 "uniform sampler2D colorMap;"
-
-                "varying vec4 baseColor;"
 
                 "/* Erode main color according to the erode color and threshold */"
                 "void erode(vec3 mainColor, vec3 erodeColor)"
@@ -227,7 +222,7 @@ void Erosion::createShaders()
 
                 "erode(mainColor.rgb, erodeColor);"
 
-                "gl_FragColor  = mainColor * baseColor;"
+                "gl_FragColor  = mainColor;"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
