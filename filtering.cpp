@@ -21,8 +21,9 @@
 #include "filtering.h"
 
 const Tao::ModuleApi *Filter::tao = NULL;
-float Filter::amount = 1.0;
 
+bool Filter::tested = false;
+bool Filter::licensed = false;
 
 // ============================================================================
 //

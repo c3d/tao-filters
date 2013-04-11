@@ -29,10 +29,10 @@ using namespace Tao;
 
 struct Erosion : public Filter
 {
-    Erosion(float x, float y, float threshold);
+    Erosion(uint unit, float x, float y, float threshold);
     ~Erosion();
 
-    void setColor(GLfloat erode_color[4]);
+    void setColor(GLfloat erode_color[3]);
     void setRadius(float radius);
 
     // Draw erosion filter
@@ -42,14 +42,15 @@ protected:
     virtual void    createShaders();
 
 private:
-    GLfloat color[4];           // Erosion color
-    float   x, y;               // Erosion center
-    float   threshold;          // Erosion threshold
-    float   radius;             // Erosion radius
+    uint    unit;      // texture parameters
+    GLfloat color[3];  // erosion color
+    float   x, y;      // erosion center
+    float   threshold; // erosion threshold
+    float   radius;    // erosion radius
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static uint colorMapID, radiusID, amountID, thresholdID, colorID, centerID;
+    static std::map<text, GLint> uniforms;
     static const QGLContext* context;
 };
 

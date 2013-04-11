@@ -18,7 +18,6 @@
 //  (C) 2011 Baptiste Soulisse <baptiste.soulisse@taodyne.com>
 //  (C) 2011 Taodyne SAS
 // ****************************************************************************
-
 #include "convolution_filter.h"
 
 // ============================================================================
@@ -32,27 +31,17 @@
 
 bool                  ConvolutionFilter::failed = false;
 QGLShaderProgram*     ConvolutionFilter::pgm = NULL;
-uint                  ConvolutionFilter::widthID = 0;
-uint                  ConvolutionFilter::heightID = 0;
-uint                  ConvolutionFilter::colorMapID = 0;
-uint                  ConvolutionFilter::levelID = 0;
-uint                  ConvolutionFilter::amountID = 0;
-uint                  ConvolutionFilter::kernelID = 0;
+std::map<text, GLint> ConvolutionFilter::uniforms;
 const QGLContext*     ConvolutionFilter::context = NULL;
 
-
-#define GL (*graphic_state)
-DLL_PUBLIC Tao::GraphicState * graphic_state = NULL;
-
-
-ConvolutionFilter::ConvolutionFilter(int w, int h)
+ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), w(w), h(h), level(0.0)
+    : Filter(&context), unit(unit), w(w), h(h), level(0.0)
 {
     IFTRACE(filters)
-        debug() << "Create convolution filter" << "\n";
+            debug() << "Create convolution filter" << "\n";
 
     checkGLContext();
 }
@@ -89,6 +78,12 @@ void ConvolutionFilter::Draw()
 //   Apply convolution filter
 // ----------------------------------------------------------------------------
 {
+    if (!tested)
+    {
+        licensed = tao->checkImpressOrLicense("Filters 1.005");
+        tested = true;
+    }
+
     checkGLContext();
 
     uint prg_id = 0;
@@ -98,20 +93,20 @@ void ConvolutionFilter::Draw()
     if(prg_id)
     {
         IFTRACE(filters)
-            debug() << "Apply convolution filter" << "\n";
+                debug() << "Apply convolution filter" << "\n";
 
         // Set shader
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(widthID, 1.0f/w);
-        GL.Uniform(heightID, 1.0f/h);
-        GL.Uniform(colorMapID, 0);
+        glUniform1i(uniforms["width"], w);
+        glUniform1i(uniforms["height"], h);
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
 
         // Set convolution parameters
-        GL.Uniform(levelID, level);
-        GL.Uniform(amountID, amount);
-        GL.Uniform1fv(kernelID, sizeof(kernel), kernel);
+        glUniform1f(uniforms["level"], level);
+        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
     }
 }
 
@@ -124,7 +119,7 @@ void ConvolutionFilter::createShaders()
     if(!failed)
     {
         IFTRACE(filters)
-            debug() << "Create shader for convolution filter" << "\n";
+                debug() << "Create shader for convolution filter" << "\n";
 
         delete pgm;
 
@@ -133,80 +128,100 @@ void ConvolutionFilter::createShaders()
 
         // Basic vertex shader
         static string vSrc =
-            "/********************************************************************************\n"
-            "**                                                                               \n"
-            "** Copyright (C) 2011 Taodyne.                                                   \n"
-            "** All rights reserved.                                                          \n"
-            "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-            "**                                                                               \n"
-            "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-            "** It can be only used in the software and these modules.                        \n"
-            "**                                                                               \n"
-            "** If you have questions regarding the use of this file, please contact          \n"
-            "** Taodyne at contact@taodyne.com.                                               \n"
-            "**                                                                               \n"
-            "********************************************************************************/\n"
-            "uniform float pixel_width;"
-            "uniform float pixel_height;"
-            "varying vec2 texCoord[9];"
-            "void main()"
-            "{"
-            "   gl_Position = ftransform();"
+                "/********************************************************************************\n"
+                "**                                                                               \n"
+                "** Copyright (C) 2011 Taodyne.                                                   \n"
+                "** All rights reserved.                                                          \n"
+                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
+                "**                                                                               \n"
+                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
+                "** It can be only used in the software and these modules.                        \n"
+                "**                                                                               \n"
+                "** If you have questions regarding the use of this file, please contact          \n"
+                "** Taodyne at contact@taodyne.com.                                               \n"
+                "**                                                                               \n"
+                "********************************************************************************/\n"
+                "varying vec4 color;"
+                "void main()"
+                "{"
+                "   gl_Position = ftransform();"
 
-            "   /* Compute texture coordinates */"
-            "   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+                "   /* Compute texture coordinates */"
+                "   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+                "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
+                "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
+                "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
 
-            "   vec2 tc = gl_TexCoord[0].st;"
-            "   texCoord[0] = tc + vec2(-pixel_width, -pixel_height);"
-            "   texCoord[1] = tc + vec2(         0.0, -pixel_height);"
-            "   texCoord[2] = tc + vec2( pixel_width, -pixel_height);"
-            "   texCoord[3] = tc + vec2(-pixel_width,           0.0);"
-            "   texCoord[4] = tc + vec2(         0.0,           0.0);"
-            "   texCoord[5] = tc + vec2( pixel_width,           0.0);"
-            "   texCoord[6] = tc + vec2(-pixel_width,  pixel_height);"
-            "   texCoord[7] = tc + vec2(         0.0,  pixel_height);"
-            "   texCoord[8] = tc + vec2( pixel_width,  pixel_height);"
-            "}";
+                "   color = gl_Color;"
+                "}";
 
         static string fSrc =
-            "/********************************************************************************\n"
-            "**                                                                               \n"
-            "** Copyright (C) 2011 Taodyne.                                                   \n"
-            "** All rights reserved.                                                          \n"
-            "** Contact: Taodyne (contact@taodyne.com)                                        \n"
-            "**                                                                               \n"
-            "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
-            "** It can be only used in the software and these modules.                        \n"
-            "**                                                                               \n"
-            "** If you have questions regarding the use of this file, please contact          \n"
-            "** Taodyne at contact@taodyne.com.                                               \n"
-            "**                                                                               \n"
-            "********************************************************************************/\n"
-            "/* Filter parameters */"
-            "uniform float pixel_width; "    // Texture width
-            "uniform float pixel_height; "   // Texture height
-            "uniform float level;"           // Gray level
-            "uniform float amount;"
-            "uniform float kernel[9];"       // Convolution kernel
-            "uniform sampler2D colorMap;"
-            "varying vec2 texCoord[9];"
+                "/********************************************************************************\n"
+                "**                                                                               \n"
+                "** Copyright (C) 2011 Taodyne.                                                   \n"
+                "** All rights reserved.                                                          \n"
+                "** Contact: Taodyne (contact@taodyne.com)                                        \n"
+                "**                                                                               \n"
+                "** This file is part of the Tao Presentations application, developped by Taodyne.\n"
+                "** It can be only used in the software and these modules.                        \n"
+                "**                                                                               \n"
+                "** If you have questions regarding the use of this file, please contact          \n"
+                "** Taodyne at contact@taodyne.com.                                               \n"
+                "**                                                                               \n"
+                "********************************************************************************/\n"
+                "/* Filter parameters */"
+                "uniform int   width; "    //Texture width
+                "uniform int   height; "   //Texture height
+                "uniform float level;"     //Gray level
+                "uniform float kernel[9];" //Convolution kernel
 
-            "void main()"
-            "{"
-            "   /* Get the correct texture coordinates */"
-            "   vec4 source = texture2D(colorMap, texCoord[4]);"
-            "   vec4 color = vec4(level) "
-            "          + kernel[0] * texture2D(colorMap, texCoord[0])"
-            "          + kernel[1] * texture2D(colorMap, texCoord[1])"
-            "          + kernel[2] * texture2D(colorMap, texCoord[2])"
-            "          + kernel[3] * texture2D(colorMap, texCoord[3])"
-            "          + kernel[4] * source"
-            "          + kernel[5] * texture2D(colorMap, texCoord[5])"
-            "          + kernel[6] * texture2D(colorMap, texCoord[6])"
-            "          + kernel[7] * texture2D(colorMap, texCoord[7])"
-            "          + kernel[8] * texture2D(colorMap, texCoord[8]);"
-            "    gl_FragColor = mix(source, color, amount);"
-            "}";
+                "uniform int       texUnit;"
+                "uniform sampler2D colorMap;"
+
+                "varying vec4 color;"
+                "void main()"
+                "{"
+                "   /* Get the correct texture coordinates */"
+                "   vec2 texCoords = vec2(0.0);"
+                "   if(texUnit == 0)"
+                "       texCoords = gl_TexCoord[0].st;"
+                "   if(texUnit == 1)"
+                "       texCoords = gl_TexCoord[1].st;"
+                "   if(texUnit == 2)"
+                "       texCoords = gl_TexCoord[2].st;"
+                "   if(texUnit == 3)"
+                "       texCoords = gl_TexCoord[3].st;"
+
+                "   /* Size of a pixel */"
+                "   float pixel_w = 1.0 / float(width);"
+                "   float pixel_h = 1.0 / float(height);"
+
+                "   int i = 0;"
+                "   vec4 sum = vec4(0.0);"
+
+                "   /* Compute offset */ "
+                "   vec2 offset[9];"
+                "   offset[0] = vec2(-pixel_w, -pixel_h);"
+                "   offset[1] = vec2(0.0, -pixel_h);"
+                "   offset[2] = vec2(pixel_w, -pixel_h);"
+
+                "   offset[3] = vec2(-pixel_w, 0.0);"
+                "   offset[4] = vec2(0.0, 0.0);"
+                "   offset[5] = vec2(pixel_w, 0.0);"
+
+                "   offset[6] = vec2(-pixel_w, pixel_h);"
+                "   offset[7] = vec2(0.0, pixel_h);"
+                "   offset[8] = vec2(pixel_w, pixel_h);"
+
+                "   /* Apply filter to the current map */ "
+                "   for( i=0; i < 9; i++ )"
+                "       sum += texture2D(colorMap, texCoords + offset[i]) * kernel[i];"
+
+                "   /* Add gray level */"
+                "   sum += level;"
+
+                "   gl_FragColor = vec4(sum.rgb, 1.0) * color;"
+                "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
         {
@@ -237,12 +252,13 @@ void ConvolutionFilter::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            widthID    = glGetUniformLocation(id, "pixel_width");
-            heightID   = glGetUniformLocation(id, "pixel_height");
-            colorMapID = glGetUniformLocation(id, "colorMap");
-            levelID    = glGetUniformLocation(id, "level");
-            amountID   = glGetUniformLocation(id, "amount");
-            kernelID   = glGetUniformLocation(id, "kernel");
+            uniforms["width"]    = glGetUniformLocation(id, "width");
+            uniforms["height"]   = glGetUniformLocation(id, "height");
+            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
+            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
+
+            uniforms["level"]    = glGetUniformLocation(id, "level");
+            uniforms["kernel"]   = glGetUniformLocation(id, "kernel");
         }
     }
 }
