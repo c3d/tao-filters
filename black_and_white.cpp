@@ -32,9 +32,7 @@ std::map<text, GLint> BlackAndWhite::uniforms;
 const QGLContext*     BlackAndWhite::context = NULL;
 
 
-#define GL (*graphic_state)
-
-BlackAndWhite::BlackAndWhite(int unit)
+BlackAndWhite::BlackAndWhite(uint unit)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -71,6 +69,12 @@ void BlackAndWhite::Draw()
 //   Apply black and white filter
 // ----------------------------------------------------------------------------
 {
+    if (!tested)
+    {
+        licensed = tao->checkImpressOrLicense("Filters 1.005");
+        tested = true;
+    }
+
     checkGLContext();
 
     uint prg_id = 0;
@@ -86,11 +90,11 @@ void BlackAndWhite::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(uniforms["texUnit"], unit);
-        GL.Uniform(uniforms["colorMap"], unit);
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
 
         // Set erosion parameters
-        GL.Uniform3fv(uniforms["levels"], 1, levels);
+        glUniform3fv(uniforms["levels"], 1, levels);
     }
 }
 
