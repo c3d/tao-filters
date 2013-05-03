@@ -77,12 +77,6 @@ void Erosion::Draw()
 //   Apply erosion filter
 // ----------------------------------------------------------------------------
 {
-    if (!tested)
-    {
-        licensed = tao->checkImpressOrLicense("Filters 1.005");
-        tested = true;
-    }
-
     checkGLContext();
 
     uint prg_id = 0;
