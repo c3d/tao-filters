@@ -44,6 +44,9 @@ QT          += core \
 
 INSTALLS    += thismod_icon
 
+LICENSE_FILES = filters.taokey.notsigned
+include(../licenses.pri)
+
 QMAKE_SUBSTITUTES = doc/Doxyfile.in
 DOXYFILE = doc/Doxyfile
 DOXYLANG = en,fr
