@@ -31,10 +31,15 @@
 
 bool                  ConvolutionFilter::failed = false;
 QGLShaderProgram*     ConvolutionFilter::pgm = NULL;
-std::map<text, GLint> ConvolutionFilter::uniforms;
+std::map<text, GLuint> ConvolutionFilter::uniforms;
 const QGLContext*     ConvolutionFilter::context = NULL;
 
-ConvolutionFilter::ConvolutionFilter(uint unit, uint w, uint h)
+
+#define GL (*graphic_state)
+DLL_PUBLIC Tao::GraphicState * graphic_state = NULL;
+
+
+ConvolutionFilter::ConvolutionFilter(int unit, int w, int h)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -99,14 +104,14 @@ void ConvolutionFilter::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        glUniform1i(uniforms["width"], w);
-        glUniform1i(uniforms["height"], h);
-        glUniform1i(uniforms["texUnit"], unit);
-        glUniform1i(uniforms["colorMap"], unit);
+        GL.Uniform(uniforms["width"], w);
+        GL.Uniform(uniforms["height"], h);
+        GL.Uniform(uniforms["texUnit"], unit);
+        GL.Uniform(uniforms["colorMap"], unit);
 
         // Set convolution parameters
-        glUniform1f(uniforms["level"], level);
-        glUniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
+        GL.Uniform(uniforms["level"], level);
+        GL.Uniform1fv(uniforms["kernel"], sizeof(kernel), kernel);
     }
 }
 
@@ -141,7 +146,6 @@ void ConvolutionFilter::createShaders()
                 "** Taodyne at contact@taodyne.com.                                               \n"
                 "**                                                                               \n"
                 "********************************************************************************/\n"
-                "varying vec4 color;"
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
@@ -151,8 +155,6 @@ void ConvolutionFilter::createShaders()
                 "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
                 "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
                 "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
-
-                "   color = gl_Color;"
                 "}";
 
         static string fSrc =
@@ -178,7 +180,6 @@ void ConvolutionFilter::createShaders()
                 "uniform int       texUnit;"
                 "uniform sampler2D colorMap;"
 
-                "varying vec4 color;"
                 "void main()"
                 "{"
                 "   /* Get the correct texture coordinates */"
@@ -220,7 +221,7 @@ void ConvolutionFilter::createShaders()
                 "   /* Add gray level */"
                 "   sum += level;"
 
-                "   gl_FragColor = vec4(sum.rgb, 1.0) * color;"
+                "   gl_FragColor = vec4(sum.rgb, 1.0);"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
