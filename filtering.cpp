@@ -22,9 +22,6 @@
 
 const Tao::ModuleApi *Filter::tao = NULL;
 
-bool Filter::tested = false;
-bool Filter::licensed = false;
-
 // ============================================================================
 //
 //    Filter
