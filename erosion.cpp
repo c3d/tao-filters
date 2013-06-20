@@ -31,9 +31,7 @@ QGLShaderProgram*     Erosion::pgm = NULL;
 std::map<text, GLint> Erosion::uniforms;
 const QGLContext*     Erosion::context = NULL;
 
-#define GL (*graphic_state)
-
-Erosion::Erosion(int unit, float x, float y, float threshold)
+Erosion::Erosion(uint unit, float x, float y, float threshold)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -94,16 +92,16 @@ void Erosion::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(uniforms["texUnit"], unit);
-        GL.Uniform(uniforms["colorMap"], unit);
+        glUniform1i(uniforms["texUnit"], unit);
+        glUniform1i(uniforms["colorMap"], unit);
 
         // Set erosion parameters
-        GL.Uniform(uniforms["radius"], radius);
-        GL.Uniform(uniforms["threshold"], threshold);
-        GL.Uniform3fv(uniforms["color"], 1, color);
+        glUniform1f(uniforms["radius"], radius);
+        glUniform1f(uniforms["threshold"], threshold);
+        glUniform3fv(uniforms["color"], 1, color);
 
         GLfloat center[2] = {x, y};
-        GL.Uniform2fv(uniforms["center"], 1, center);
+        glUniform2fv(uniforms["center"], 1, center);
     }
 }
 
@@ -138,6 +136,7 @@ void Erosion::createShaders()
                 "** Taodyne at contact@taodyne.com.                                               \n"
                 "**                                                                               \n"
                 "********************************************************************************/\n"
+                "varying vec4 baseColor;"
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
@@ -147,6 +146,8 @@ void Erosion::createShaders()
                 "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
                 "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
                 "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
+
+                "   baseColor = gl_Color;"
                 "}";
 
         static string fSrc =
@@ -171,6 +172,8 @@ void Erosion::createShaders()
 
                 "uniform int       texUnit;"
                 "uniform sampler2D colorMap;"
+
+                "varying vec4 baseColor;"
 
                 "/* Erode main color according to the erode color and threshold */"
                 "void erode(vec3 mainColor, vec3 erodeColor)"
@@ -216,7 +219,7 @@ void Erosion::createShaders()
 
                 "erode(mainColor.rgb, erodeColor);"
 
-                "gl_FragColor  = mainColor;"
+                "gl_FragColor  = mainColor * baseColor;"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))

@@ -29,7 +29,7 @@ using namespace Tao;
 
 struct BlackAndWhite : public Filter
 {
-    BlackAndWhite(int unit);
+    BlackAndWhite(uint unit);
     ~BlackAndWhite();
 
     void setLevels(GLfloat color_levels[3]);
@@ -41,7 +41,7 @@ protected:
     virtual void    createShaders();
 
 private:
-    int    unit;       // texture parameters
+    uint    unit;       // texture parameters
     GLfloat levels[3];  // color levels
 
     static bool failed;

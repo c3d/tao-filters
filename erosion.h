@@ -29,7 +29,7 @@ using namespace Tao;
 
 struct Erosion : public Filter
 {
-    Erosion(int unit, float x, float y, float threshold);
+    Erosion(uint unit, float x, float y, float threshold);
     ~Erosion();
 
     void setColor(GLfloat erode_color[3]);
@@ -42,7 +42,7 @@ protected:
     virtual void    createShaders();
 
 private:
-    int    unit;      // texture parameters
+    uint    unit;      // texture parameters
     GLfloat color[3];  // erosion color
     float   x, y;      // erosion center
     float   threshold; // erosion threshold
