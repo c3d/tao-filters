@@ -1,8 +1,7 @@
 /**
  * @~english
  * @taomoduledescription{Filters, Filters}
- *
- * <tt>import Filters</tt> - Apply filters on imported images.
+ * <tt>import Filters</tt> - Apply filters on imported images.@n
  *
  * This module allows you to apply some basic filtering on your textures.
  *
@@ -17,8 +16,7 @@
  *
  * @~french
  * @taomoduledescription{Filters, Filtrage d'images}
- *
- * <tt>import Filters</tt> - Applique des filtres sur des images.
+ * <tt>import Filters</tt> - Applique des filtres sur des images.@n
  *
  * Ce module vous permet d'effectuer certains filtrages sur des textures.
  *
