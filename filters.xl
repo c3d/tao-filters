@@ -94,8 +94,7 @@ erode x:real, y:real, threshold:real ->
     /**
     * Apply Erosion filter.
     **/
-    FILTER -> erode texture_unit, x, y, threshold
-    render_to_texture FILTER
+    render_to_texture {erode texture_unit, x, y, threshold}
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Black & White filter
