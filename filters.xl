@@ -11,7 +11,7 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.006
+    version 1.007
 
 module_description "fr",
     name "Filtrage"
@@ -94,8 +94,7 @@ erode x:real, y:real, threshold:real ->
     /**
     * Apply Erosion filter.
     **/
-    FILTER -> erode texture_unit, x, y, threshold
-    render_to_texture FILTER
+    render_to_texture {erode texture_unit, x, y, threshold}
 
 // -------------------------------------------------------------------------------------------------------------------
 //   Black & White filter
