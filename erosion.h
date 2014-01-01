@@ -29,7 +29,7 @@ using namespace Tao;
 
 struct Erosion : public Filter
 {
-    Erosion(int unit, float x, float y, float threshold);
+    Erosion(float x, float y, float threshold);
     ~Erosion();
 
     void setColor(GLfloat erode_color[3]);
@@ -42,7 +42,6 @@ protected:
     virtual void    createShaders();
 
 private:
-    int    unit;      // texture parameters
     GLfloat color[3];  // erosion color
     float   x, y;      // erosion center
     float   threshold; // erosion threshold
@@ -50,7 +49,7 @@ private:
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static std::map<text, GLint> uniforms;
+    static uint colorMapID, radiusID, thresholdID, colorID, centerID;
     static const QGLContext* context;
 };
 

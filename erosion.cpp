@@ -28,19 +28,23 @@
 
 bool                  Erosion::failed = false;
 QGLShaderProgram*     Erosion::pgm = NULL;
-std::map<text, GLint> Erosion::uniforms;
+uint                  Erosion::colorMapID = 0;
+uint                  Erosion::radiusID = 0;
+uint                  Erosion::thresholdID = 0;
+uint                  Erosion::colorID = 0;
+uint                  Erosion::centerID = 0;
 const QGLContext*     Erosion::context = NULL;
 
 #define GL (*graphic_state)
 
-Erosion::Erosion(int unit, float x, float y, float threshold)
+Erosion::Erosion(float x, float y, float threshold)
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit), x(x), y(y), threshold(threshold), radius(1.0)
+    : Filter(&context), x(x), y(y), threshold(threshold), radius(1.0)
 {
     IFTRACE(filters)
-            debug() << "Create black and white filter" << "\n";
+        debug() << "Create black and white filter" << "\n";
 
     checkGLContext();
 }
@@ -94,16 +98,15 @@ void Erosion::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(uniforms["texUnit"], unit);
-        GL.Uniform(uniforms["colorMap"], unit);
+        GL.Uniform(colorMapID, 0);
 
         // Set erosion parameters
-        GL.Uniform(uniforms["radius"], radius);
-        GL.Uniform(uniforms["threshold"], threshold);
-        GL.Uniform3fv(uniforms["color"], 1, color);
+        GL.Uniform(radiusID, radius);
+        GL.Uniform(thresholdID, threshold);
+        GL.Uniform3fv(colorID, 1, color);
 
         GLfloat center[2] = {x, y};
-        GL.Uniform2fv(uniforms["center"], 1, center);
+        GL.Uniform2fv(centerID, 1, center);
     }
 }
 
@@ -169,54 +172,39 @@ void Erosion::createShaders()
                 "uniform vec2 center;"
                 "uniform vec3 color;"
 
-                "uniform int       texUnit;"
                 "uniform sampler2D colorMap;"
 
                 "/* Erode main color according to the erode color and threshold */"
                 "void erode(vec3 mainColor, vec3 erodeColor)"
                 "{"
-                "if(erodeColor.r + threshold >= mainColor.r"
-                "&& erodeColor.g + threshold >= mainColor.g"
-                "&& erodeColor.b + threshold >= mainColor.b)"
-                "{"
-                "if(erodeColor.r - threshold <= mainColor.r"
-                "&& erodeColor.g - threshold <= mainColor.g"
-                "&& erodeColor.b - threshold <= mainColor.b)"
-                "{"
-                "discard;"
-                "}"
-                "}"
+                "    if(erodeColor.r + threshold >= mainColor.r"
+                "    && erodeColor.g + threshold >= mainColor.g"
+                "    && erodeColor.b + threshold >= mainColor.b)"
+                "    {"
+                "        if(erodeColor.r - threshold <= mainColor.r"
+                "        && erodeColor.g - threshold <= mainColor.g"
+                "        && erodeColor.b - threshold <= mainColor.b)"
+                "        {"
+                "            discard;"
+                "        }"
+                "    }"
                 "}"
 
                 "void main()"
                 "{"
-                "/* Get the correct texture coordinates */"
-                "vec2 texCoords = vec2(0.0);"
-                "if(texUnit == 0)"
-                "texCoords = gl_TexCoord[0].st;"
-                "if(texUnit == 1)"
-                "texCoords = gl_TexCoord[1].st;"
-                "if(texUnit == 2)"
-                "texCoords = gl_TexCoord[2].st;"
-                "if(texUnit == 3)"
-                "texCoords = gl_TexCoord[3].st;"
+                "    /* Get the correct texture coordinates */"
+                "    vec2 texCoords = gl_TexCoord[0].st;"
+                "    vec4 mainColor = texture2D(colorMap, texCoords);"
 
-                "vec4 mainColor = texture2D(colorMap, texCoords);"
+                "    vec3 erodeColor;"
+                "    /* If color is not set, get center color to erode */"
+                "    if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)"
+                "        erodeColor = texture2D(colorMap, center).rgb;"
 
-                "vec3 erodeColor;"
-                "/* If color is not set, get center color to erode */"
-                "if(color.r > 1.0 || color.g > 1.0 || color.b > 1.0)"
-                "erodeColor = texture2D(colorMap, center).rgb;"
-
-                "/* Filtering inside a circle */"
-                "if((gl_TexCoord[0].s - center.x) *"
-                "(gl_TexCoord[0].s - center.x) +"
-                "(gl_TexCoord[0].t - center.y) *"
-                "(gl_TexCoord[0].t - center.y) <= radius * radius)"
-
-                "erode(mainColor.rgb, erodeColor);"
-
-                "gl_FragColor  = mainColor;"
+                "    /* Filtering inside a circle */"
+                "    if(length(gl_TexCoord[0].st - center.xy) <= radius)"
+                "        erode(mainColor.rgb, erodeColor);"
+                "    gl_FragColor  = mainColor;"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
@@ -248,13 +236,12 @@ void Erosion::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            uniforms["texUnit"]   = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"]  = glGetUniformLocation(id, "colorMap");
+            colorMapID  = glGetUniformLocation(id, "colorMap");
 
-            uniforms["radius"]    = glGetUniformLocation(id, "radius");
-            uniforms["threshold"] = glGetUniformLocation(id, "threshold");
-            uniforms["center"]    = glGetUniformLocation(id, "center");
-            uniforms["color"]     = glGetUniformLocation(id, "color");
+            radiusID    = glGetUniformLocation(id, "radius");
+            thresholdID = glGetUniformLocation(id, "threshold");
+            centerID    = glGetUniformLocation(id, "center");
+            colorID     = glGetUniformLocation(id, "color");
         }
     }
 }

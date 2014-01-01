@@ -30,7 +30,7 @@ using namespace Tao;
 
 struct ConvolutionFilter : public Filter
 {
-    ConvolutionFilter(int unit, int w, int h);
+    ConvolutionFilter(int w, int h);
     ~ConvolutionFilter();
 
     void setLevel(float l);
@@ -43,16 +43,15 @@ protected:
     virtual void    createShaders();
 
 private:
-    int  unit;
     int   w, h; // texture parameters
     float level;      // gray level
     float kernel[9];  // convolution kernel
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static std::map<text, GLuint> uniforms;
+    static uint widthID, heightID, colorMapID, levelID, kernelID;
     static const QGLContext* context;
 };
 
 
-#endif // CEL_SHADING_H
+#endif // CONVOLUTION_FILTER_H

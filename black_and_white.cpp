@@ -28,20 +28,21 @@
 
 bool                  BlackAndWhite::failed = false;
 QGLShaderProgram*     BlackAndWhite::pgm = NULL;
-std::map<text, GLint> BlackAndWhite::uniforms;
+uint                  BlackAndWhite::colorMapID = 0;
+uint                  BlackAndWhite::levelsID = 0;
 const QGLContext*     BlackAndWhite::context = NULL;
 
 
 #define GL (*graphic_state)
 
-BlackAndWhite::BlackAndWhite(int unit)
+BlackAndWhite::BlackAndWhite()
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit)
+    : Filter(&context)
 {
     IFTRACE(filters)
-            debug() << "Create black and white filter" << "\n";
+        debug() << "Create black and white filter" << "\n";
 
     checkGLContext();
 }
@@ -51,8 +52,7 @@ BlackAndWhite::~BlackAndWhite()
 // ----------------------------------------------------------------------------
 //   Destruction
 // ----------------------------------------------------------------------------
-{
-}
+{}
 
 
 void BlackAndWhite::setLevels(GLfloat color_levels[3])
@@ -86,11 +86,10 @@ void BlackAndWhite::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(uniforms["texUnit"], unit);
-        GL.Uniform(uniforms["colorMap"], unit);
+        GL.Uniform(colorMapID, 0);
 
         // Set erosion parameters
-        GL.Uniform3fv(uniforms["levels"], 1, levels);
+        GL.Uniform3fv(levelsID, 1, levels);
     }
 }
 
@@ -128,12 +127,7 @@ void BlackAndWhite::createShaders()
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
-
-                "   /* Compute texture coordinates */"
                 "   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-                "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
-                "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
-                "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
                 "}";
 
         static string fSrc =
@@ -152,29 +146,18 @@ void BlackAndWhite::createShaders()
                 "********************************************************************************/\n"
                 "/* Filter parameters */"
                 "uniform vec3 levels;"
-
-                "uniform int       texUnit;"
                 "uniform sampler2D colorMap;"
 
                 "void main()"
                 "{"
                 "   /* Get the correct texture coordinates */"
-                "   vec2 texCoords = vec2(0.0);"
-                "   if(texUnit == 0)"
-                "       texCoords = gl_TexCoord[0].st;"
-                "   if(texUnit == 1)"
-                "       texCoords = gl_TexCoord[1].st;"
-                "   if(texUnit == 2)"
-                "       texCoords = gl_TexCoord[2].st;"
-                "   if(texUnit == 3)"
-                "       texCoords = gl_TexCoord[3].st;"
-
-                "   vec4 color = texture2D( colorMap, texCoords );"
+                "   vec2 texCoords = gl_TexCoord[0].st;"
+                "   vec4 color = texture2D(colorMap, texCoords);"
 
                 "   /* Define color levels */"
-                "   vec3 red   = vec3(color.r, color.r, color.r);"
-                "   vec3 green = vec3(color.g, color.g, color.g);"
-                "   vec3 blue  = vec3(color.b, color.b, color.b);"
+                "   vec3 red   = vec3(color.r);"
+                "   vec3 green = vec3(color.g);"
+                "   vec3 blue  = vec3(color.b);"
 
                 "   gl_FragColor = vec4(levels.r * red + levels.g * green +  levels.b * blue, 1.0);"
                 "}";
@@ -208,9 +191,8 @@ void BlackAndWhite::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
-            uniforms["levels"]   = glGetUniformLocation(id, "levels");
+            colorMapID = glGetUniformLocation(id, "colorMap");
+            levelsID   = glGetUniformLocation(id, "levels");
         }
     }
 }

@@ -20,12 +20,14 @@ INCLUDEPATH += $${TAOTOPSRC}/tao/include/tao/
 HEADERS = \
           filters.h \
           filtering.h \
+          two_pass_gaussian.h \
           convolution_filter.h \
           black_and_white.h \
           erosion.h
 
 SOURCES = filters.cpp \
           filtering.cpp \
+          two_pass_gaussian.cpp \
           convolution_filter.cpp \
           black_and_white.cpp \
           erosion.cpp

@@ -29,7 +29,7 @@ using namespace Tao;
 
 struct BlackAndWhite : public Filter
 {
-    BlackAndWhite(int unit);
+    BlackAndWhite();
     ~BlackAndWhite();
 
     void setLevels(GLfloat color_levels[3]);
@@ -41,12 +41,11 @@ protected:
     virtual void    createShaders();
 
 private:
-    int    unit;       // texture parameters
     GLfloat levels[3];  // color levels
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static std::map<text, GLint> uniforms;
+    static uint colorMapID, levelsID;
     static const QGLContext* context;
 };
 

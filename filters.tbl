@@ -20,6 +20,33 @@
 //  (C) 2011 Taodyne SAS
 // ****************************************************************************
 
+// ============================================================================
+// 
+//   Two-pass gaussian filter
+// 
+// ============================================================================
+
+PREFIX(GaussianH,  tree, "gaussian_h",
+       PARM(w, integer, )
+       PARM(h, integer, )
+       PARM(n, integer, ),
+       return gaussian_pass(w, h, n, false),
+       GROUP(module.Filters)
+       SYNOPSIS("Apply a horizontal gaussian filter on the current texture.")
+       DESCRIPTION("Apply a gaussian filter on the current texture."
+                   "It can be used to add blur on an image for instance"))
+
+PREFIX(GaussianV,  tree, "gaussian_v",
+       PARM(w, integer, )
+       PARM(h, integer, )
+       PARM(n, integer, ),
+       return gaussian_pass(w, h, n, true),
+       GROUP(module.Filters)
+       SYNOPSIS("Apply a vertical gaussian filter on the current texture.")
+       DESCRIPTION("Apply a gaussian filter on the current texture."
+                   "It can be used to add blur on an image for instance"))
+
+
 
 // ============================================================================
 //
@@ -27,51 +54,46 @@
 //
 // ============================================================================
 
-PREFIX(Gaussian,  tree, "gaussian",
-       PARM(unit, integer, )
+PREFIX(Gaussian3X3,  tree, "gaussian_3x3",
        PARM(w, integer, )
        PARM(h, integer, ),
-       return gaussian(self, unit, w, h),
+       return gaussian(w, h),
        GROUP(module.Filters)
        SYNOPSIS("Apply a gaussian filter on the current texture.")
        DESCRIPTION("Apply a gaussian filter on the current texture."
                    "It can be used to add blur on an image for instance"))
 
 PREFIX(Mean,  tree, "mean",
-       PARM(unit, integer, )
        PARM(w, integer, )
        PARM(h, integer, ),
-       return mean(self, unit, w, h),
+       return mean(w, h),
        GROUP(module.Filters)
        SYNOPSIS("Apply a mean filter on the current texture.")
        DESCRIPTION("Apply a mean filter on the current texture."
                    "It can be used to remove noise of an image for instance."))
 
 PREFIX(Emboss,  tree, "emboss",
-       PARM(unit, integer, )
        PARM(w, integer, )
        PARM(h, integer, ),
-       return emboss(self, unit, w, h),
+       return emboss(w, h),
        GROUP(module.Filters)
-       SYNOPSIS("Apply a embross filter on the current texture.")
-       DESCRIPTION("Apply a embross filter on the current texture."
+       SYNOPSIS("Apply a emboss filter on the current texture.")
+       DESCRIPTION("Apply a emboss filter on the current texture."
                    "It can be used to simulate 3D of an image for instance."))
 
 PREFIX(Sharpness,  tree, "sharpness",
-       PARM(unit, integer, )
        PARM(w, integer, )
        PARM(h, integer, ),
-       return sharpness(self, unit, w, h),
+       return sharpness(w, h),
        GROUP(module.Filters)
        SYNOPSIS("Apply a sharpness filter on the current texture.")
        DESCRIPTION("Apply a sharpness filter on the current texture."
                    "It can be used to highlight details of an image for instance."))
 
 PREFIX(Laplacian,  tree, "laplacian",
-       PARM(unit, integer, )
        PARM(w, integer, )
        PARM(h, integer, ),
-       return laplacian(self, unit, w, h),
+       return laplacian(w, h),
        GROUP(module.Filters)
        SYNOPSIS("Apply a laplacian filter on the current texture.")
        DESCRIPTION("Apply a laplacian filter on the current texture."
@@ -86,7 +108,7 @@ PREFIX(Laplacian,  tree, "laplacian",
 
 PREFIX(ErodeRadius,  tree, "erode_radius",
        PARM(r, real, ),
-       return erode_radius(self, r),
+       return erode_radius(r),
        GROUP(module.Filters)
        SYNOPSIS("Modify the eroding radius")
        DESCRIPTION("Modify the eroding radius"))
@@ -95,17 +117,16 @@ PREFIX(ErodeColor,  tree, "erode_color",
        PARM(r, real, )
        PARM(g, real, )
        PARM(b, real, ),
-       return erode_color(self, r, g, b),
+       return erode_color(r, g, b),
        GROUP(module.Filters)
        SYNOPSIS("Choose the eroding color")
        DESCRIPTION("Choose the eroding color"))
 
 PREFIX(Erode,  tree, "erode",
-       PARM(unit, integer, )
        PARM(x, real, )
        PARM(y, real, )
        PARM(thr, real, ),
-       return erode(self, unit, x, y, thr),
+       return erode(x, y, thr),
        GROUP(module.Filters)
        SYNOPSIS("Apply Erosion filter")
        DESCRIPTION("Apply an Erosion filter"))
@@ -121,14 +142,13 @@ PREFIX(BlackAndWhiteLevels,  tree, "black_and_white_levels",
        PARM(r, real, )
        PARM(g, real, )
        PARM(b, real, ),
-       return black_and_white_levels(self, r, g, b),
+       return black_and_white_levels(r, g, b),
        GROUP(module.Filters)
        SYNOPSIS("Modify Black & White levels")
        DESCRIPTION("Modify Black & White levels"))
 
-PREFIX(BlackAndWhite,  tree, "black_and_white",
-       PARM(unit, integer, ),
-       return black_and_white(self, unit),
+PREFIX(BlackAndWhite,  tree, "black_and_white",,
+       return black_and_white(),
        GROUP(module.Filters)
        SYNOPSIS("Apply Black & White filter")
        DESCRIPTION("Apply Black & White filter"))

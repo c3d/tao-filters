@@ -1,8 +1,25 @@
-// Filters module definition
-//
-// This module defines the filter primitives
-//
-// Copyright 2010-2011 Taodyne
+// ****************************************************************************
+//  filters.xl                                                     Tao project 
+// ****************************************************************************
+// 
+//   File Description:
+// 
+//      Define the image filtering primitives:
+//      - Gaussian blur (two-pass)
+//      - Mean
+//      - Laplacian
+//      - Emboss
+//      - Sharpness
+// 
+// 
+// 
+// ****************************************************************************
+// This software is property of Taodyne SAS - Confidential
+// Ce logiciel est la propriété de Taodyne SAS - Confidentiel
+//  (C) 2012 Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+//  (C) 2013 Christophe de Dinechin <christophe@taodyne.com>
+//  (C) 2012-2013 Taodyne SAS
+// ****************************************************************************
 
 module_description
     id "c90d3b0b-a461-48d4-a1e0-db212cd3e1ec"
@@ -11,118 +28,152 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.007
+    version 1.008
 
 module_description "fr",
     name "Filtrage"
     description "Permet d'appliquer de nombreux filtres sur les images importées dans Tao."
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Filters primitives
-// -------------------------------------------------------------------------------------------------------------------
 
-gaussian iter:integer ->
-    /**
-    * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
-    **/
-    gaussian_iter with 1..iter
 
-gaussian_iter i ->
-    /**
-    * Apply an iterative gaussian filter on the current texture.
-    **/
-    render_to_texture {gaussian texture_unit, texture_width, texture_height}
+// ============================================================================
+// 
+//    Filter primitives
+// 
+// ============================================================================
+
+gaussian Radius:integer ->
+// ----------------------------------------------------------------------------
+//   Apply a two-pass gaussian filter with the given radius
+// ----------------------------------------------------------------------------
+    if Radius > 0 then
+        render_to_texture { gaussian_h texture_width, texture_height, Radius }
+        render_to_texture { gaussian_v texture_width, texture_height, Radius }
+
+
+gaussian RH:integer, RV:integer ->
+// ----------------------------------------------------------------------------
+//    Apply a gaussian filter with different vertical and horizontal radii
+// ----------------------------------------------------------------------------
+    if RH > 0 then
+        render_to_texture { gaussian_h texture_width, texture_height, RH }
+    if RV > 0 then
+        render_to_texture { gaussian_v texture_width, texture_height, RV }
+
+
+gaussian_3x3 iter:integer ->
+// ----------------------------------------------------------------------------
+//    Apply a Gaussian 3x3 kernel
+// ----------------------------------------------------------------------------
+// The Gaussian 3x3 filter is special hard-coded case
+    gaussian_3x3_iter with 1..iter
+
+
+gaussian_3x3_iter i ->
+// ----------------------------------------------------------------------------
+//   Apply an iteration of the Gaussian filter
+// ----------------------------------------------------------------------------
+    render_to_texture {gaussian_3x3 texture_width, texture_height}
 
 
 mean iter:integer ->
-    /**
-    * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
-    **/
+// ----------------------------------------------------------------------------
+//    Apply a mean filter on the current texture
+// ----------------------------------------------------------------------------
+// The mean filter can be used to remove noise of an image
     mean_iter with 1..iter
 
 mean_iter i ->
-    /**
-    * Apply an iterative mean filter on the current texture.
-    **/
-    render_to_texture {mean texture_unit, texture_width, texture_height}
+// ----------------------------------------------------------------------------
+//   Apply an iteration of the mean filter
+// ----------------------------------------------------------------------------
+    render_to_texture {mean texture_width, texture_height}
 
 
 emboss iter:integer ->
-    /**
-    * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
-    **/
+// ----------------------------------------------------------------------------
+//   Apply emboss filter on current texture
+// ----------------------------------------------------------------------------
+// This filter can be used to simulate a kind of 3D effect on an image
     emboss_iter with 1..iter
 
+
 emboss_iter i ->
-    /**
-    * Apply an iterative emboss filter on the current texture.
-    **/
-    render_to_texture {emboss texture_unit, texture_width, texture_height}
+// ----------------------------------------------------------------------------
+//   Apply an iteration of the emboss filter
+// ----------------------------------------------------------------------------
+    render_to_texture {emboss texture_width, texture_height}
 
 
 sharpness iter:integer ->
-    /**
-    * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
-    **/
+// ----------------------------------------------------------------------------
+//    Apply a sharpness filter to the current texture
+// ----------------------------------------------------------------------------
+//  The sharpness filter can be used to highlight details of an image
     sharpness_iter with 1..iter
 
+
 sharpness_iter i ->
-    /**
-    * Apply an iterative sharpness filter on the current texture.
-    **/
-    render_to_texture {sharpness texture_unit, texture_width, texture_height}
+// ----------------------------------------------------------------------------
+//    Apply an iteration of a sharpness filter
+// ----------------------------------------------------------------------------
+    render_to_texture {sharpness texture_width, texture_height}
 
 
 laplacian iter:integer ->
-    /**
-    * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
-    **/    
+// ----------------------------------------------------------------------------
+//   Apply a Laplacian filter 'iter' times
+// ----------------------------------------------------------------------------
+//   A Laplacian filter can be used to detect the outlines of an image
     laplacian_iter with 1..iter
 
+
 laplacian_iter i ->
-    /**
-    * Apply an iterative laplacian filter on the current texture.
-    **/
-    render_to_texture {laplacian texture_unit, texture_width, texture_height}
+// ----------------------------------------------------------------------------
+//   Apply an iteration of the Laplacian filter on the current texture
+// ----------------------------------------------------------------------------
+    render_to_texture {laplacian texture_width, texture_height}
 
-
-// -------------------------------------------------------------------------------------------------------------------
-//   Eroding filter
-// -------------------------------------------------------------------------------------------------------------------
 
 erode x:real, y:real, threshold:real ->
-    /**
-    * Apply Erosion filter.
-    **/
-    render_to_texture {erode texture_unit, x, y, threshold}
+// ----------------------------------------------------------------------------
+//    Apply an erosion filter
+// ----------------------------------------------------------------------------
+    render_to_texture {erode x, y, threshold}
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Black & White filter
-// -------------------------------------------------------------------------------------------------------------------
 
 black_and_white ->
-    /**
-    * Apply Black & White filter
-    **/
-    render_to_texture black_and_white texture_unit
+// ----------------------------------------------------------------------------
+//   Apply a black-and-white filter
+// ----------------------------------------------------------------------------
+    render_to_texture black_and_white
 
-// -------------------------------------------------------------------------------------------------------------------
+
+
+// ============================================================================
+// 
 //   Render to Texture
-// -------------------------------------------------------------------------------------------------------------------
+// 
+// ============================================================================
 
-TEXTURE_WIDTH -> 0
-TEXTURE_HEIGHT -> 0
-TEXTURE_ID -> 0
+TEXTURE_WIDTH   -> 0
+TEXTURE_HEIGHT  -> 0
+TEXTURE_ID      -> 0
 
 render_to_texture RENDER_CODE ->
-    /**
-    * Allow to render the current texture modified by RENDER_CODE to new one.
-    **/
+// ----------------------------------------------------------------------------
+//   Render 'RENDER_CODE' into a new texture
+// ----------------------------------------------------------------------------
+//   Note that the texture is rendered in the current texture unit, but
+//   that within the body of frame_texture, we render with a single
+//   texture and map this unique texture to texture 0.
+
     TEXTURE_WIDTH := texture_width
     TEXTURE_HEIGHT := texture_height
     TEXTURE_ID := texture
+
     frame_texture TEXTURE_WIDTH, TEXTURE_HEIGHT,
         color "white"
         texture TEXTURE_ID
-        do RENDER_CODE
+        RENDER_CODE
         rectangle 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT

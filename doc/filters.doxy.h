@@ -40,17 +40,32 @@
  * Applies a Gaussian filter on current texture.
  * It can be used to add blur on an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
+ * @param Radius Radius for the filter in pixels
  *
  * @~french
  * Applique un filtre Gaussien sur la texture courante.
  * Ce filtre permet d'ajouter du flou à l'image.
  *
- * @param n Nombre d'itérations du filtre.
+ * @param Radius Rayon du filtre en pixels
  */
-gaussian(n:integer);
+gaussian(Radius:integer);
+
+/**
+ * @~english
+ * Applies a Gaussian filter on current texture.
+ * It can be used to add blur on an image for instance.
+ *
+ * @param RH Horizontal radius for the filter in pixels
+ * @param RV Vertical radius for the filter in pixels
+ *
+ * @~french
+ * Applique un filtre Gaussien sur la texture courante.
+ * Ce filtre permet d'ajouter du flou à l'image.
+ *
+ * @param RH Rayon du filtre en pixels le long de l'axe horizontal
+ * @param RV Rayon du filtre en pixels le long de l'axe vertical
+ */
+gaussian(RH:integer, RV:integer);
 
 /**
  * @~english
@@ -58,8 +73,6 @@ gaussian(n:integer);
  * It can be used to remove noise of an image for instance.
  *
  * @param n number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
  *
  * @~french
  * Applique un filtre moyenneur sur la texture courante.
@@ -76,8 +89,6 @@ mean(n:integer);
  *
  * @param n number of iteration of the filter.
  *
- * @note The result texture is obtained thanks to RenderToTexture module.
- *
  * @~french
  * Applique un filtre de relief sur la texture courante.
  * Ce filtre permet de créer un effet de relief sur la texture courante.
@@ -92,8 +103,6 @@ emboss(n:integer);
  * It can be used to highlight details of an image for instance.
  *
  * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
  *
  * @~french
  * Applique un filtre de netteté à la texture courante.
@@ -110,8 +119,6 @@ sharpness(n:integer);
  * It can be used to detect oulines of an image for instance.
  *
  * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
  *
  * @~french
  * Applique un filtre Laplacien à la texture courante.
@@ -225,6 +232,53 @@ erode_radius(radius:real);
  * @param threshold Tolérance de l'érosion.
  */
 erode(x:real, y:real, threshold:real);
+
+
+/**
+ * @~english
+ * Create a new texture by applying a filter to the current one
+ * Renders the current texture through a filter, typically implemented
+ * using a GLSL shader program. The output texture after filtering is
+ * bound to the same texture unit as the inout texture, and replaces
+ * it. As seen by the rendering code, it is always the only active
+ * texture and bound to texture unit 0.
+ *
+ * @param Code Code to execute for the filter
+ *
+@code
+texture_unit 1
+frame_texture 400, 400,
+    color "pink"
+    circle 0, 0, 800 * sin time^2
+texture_unit 2
+movie_texture "my_movie.mov"
+rectangle -400, 0, texture_width, texture_height
+render_to_texture { color "yellow" }
+rectangle 400, 0, texture_width, texture_height
+@endcode
+ * @~french
+ * Crée une nouvelle texture en appliquant un filtre à la texture en cours
+ * Trace la texture en cours à travers un filtre, le plus souvent 
+ * défini à l'aide d'un programme de shader écrit en GLSL. La texture
+ * d'entrée est prise sur l'unité de texture en cours, et la texture
+ * de sortie y est placée après filtrage, remplaçant la texture
+ * d'origine. Pour le code de rendu, en revanche, la texture d'entrée
+ * est la seule active, et est placée dans l'unité de texture 0.
+ *
+ * @param Code Code du filtre
+@code
+texture_unit 1
+frame_texture 400, 400,
+    color "pink"
+    circle 0, 0, 800 * sin time^2
+texture_unit 2
+movie_texture "my_movie.mov"
+rectangle -400, 0, texture_width, texture_height
+render_to_texture { color "yellow" }
+rectangle 400, 0, texture_width, texture_height
+@endcode
+ */
+render_to_texture (Code:tree);
 
 
 /**
