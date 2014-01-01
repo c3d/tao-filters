@@ -175,5 +175,6 @@ render_to_texture RENDER_CODE ->
     frame_texture TEXTURE_WIDTH, TEXTURE_HEIGHT,
         color "white"
         texture TEXTURE_ID
+        blend_function "ONE", "ZERO"
         RENDER_CODE
         rectangle 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT
