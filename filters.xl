@@ -152,6 +152,86 @@ black_and_white ->
 
 // ============================================================================
 // 
+//   Shadows
+// 
+// ============================================================================
+
+shadow_angle            -> 115.0
+shadow_offset           -> 5.0
+shadow_depth            -> 5.0
+shadow_blur             -> 5.0
+shadow_color            -> "black"
+shadow_opacity          -> 0.75
+shadow_filter_red       -> 0.0
+shadow_filter_green     -> 0.0
+shadow_filter_blue      -> 0.0
+shadow_filter_alpha     -> 1.0
+
+shadow_angle   A:real   -> shadow_angle   := A
+shadow_offset  D:real   -> shadow_offset  := D
+shadow_depth   Z:real   -> shadow_depth   := Z
+shadow_blur    B:real   -> shadow_blur    := B
+shadow_color   C:text   -> shadow_color   := C
+shadow_opacity O:real   -> shadow_opacity := O
+shadow_filter  R:real, G:real, B:real, A:real ->
+    shadow_filter_red   := R
+    shadow_filter_green := G
+    shadow_filter_blue  := B
+    shadow_filter_alpha := A
+
+shadow_source           -> 0
+shadow_texture          -> 0
+
+
+shadow_texture W:integer, H:integer, Body ->
+// ----------------------------------------------------------------------------
+//   Render the shadow in a texture
+// ----------------------------------------------------------------------------
+    shadow_source := frame_texture (W, H, { blend_function "ONE", "ZERO"; Body})
+    shadow_texture := render_to_texture
+        shader_program
+            vertex_shader <<
+                void main(void)
+                {
+                    gl_Position = ftransform();
+                    gl_FrontColor = gl_Color;
+                    gl_BackColor = gl_Color;
+                    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                }
+            >>
+            fragment_shader <<
+                uniform sampler2D texture;
+                uniform vec4      filter;
+                void main(void)
+                {
+                    vec2  pos    = gl_TexCoord[0].xy;
+                    float shadow = dot(texture2D(texture, pos), filter);
+                    gl_FragColor = shadow * gl_Color;
+                }
+            >>
+        shader_set filter := shadow_filter_red, shadow_filter_green, shadow_filter_blue, shadow_filter_alpha
+        color shadow_color, shadow_opacity
+    if shadow_blur > 0.0 then
+        gaussian integer(shadow_blur)
+
+
+shadow X:real, Y:real, W:integer, H:integer, Body ->
+// ----------------------------------------------------------------------------
+//   Draw the Body with a drop shadow
+// ----------------------------------------------------------------------------
+    locally
+        shadow_texture W, H, Body
+        color "white"
+        locally
+            shadow_radians -> shadow_angle * pi / 180
+            translate shadow_offset * sin shadow_radians, shadow_offset * cos shadow_radians, -shadow_depth
+            rectangle X, Y, W, H
+        texture shadow_source
+        rectangle X, Y, W, H
+
+
+// ============================================================================
+// 
 //   Render to Texture
 // 
 // ============================================================================

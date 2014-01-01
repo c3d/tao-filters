@@ -236,6 +236,196 @@ erode(x:real, y:real, threshold:real);
 
 /**
  * @~english
+ * Render the given code with a drop shadow.
+ * The given code is drawn in a texture of size @a W x @a H pixels,
+ * at position @a X, @a Y. A drop shadow is behind it at a depth
+ * specified by @ref shadow_depth.
+ * Many attributes of the drop shadows can be controlled individually:
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param X Horizontal coordinate of the center of the draw area
+ * @param Y Vertical coordinate of the center of the draw area
+ * @param W Width of the draw area
+ * @param H Height of the draw area
+ * @param Body Rendering code for the contents of the draw area
+@code
+shadow 0, 0, 800, 600,
+    color "red"
+    circle -20, -20, 30
+    font "Arial", 50
+    color "blue"
+    text "Hello"
+@endcode
+ * @image html TaoShadow.jpg "Simple shadow"
+ *
+ * @~french
+ * Affiche le code donné avec une ombre portée
+ * Le code donné est dessiné dans une texture de dimensions @a W x @a H
+ * pixels, aux coordonnées @a X, @a Y. Une ombre portée est dessinée
+ * derrière cette texture à une distance indiquée par @ref shadow_depth.
+ * De nombreux attributs de l'ombre portée peuvent être contrôlés
+ * individuellement :
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param X Coordonnée horizontale du centre de la zone de dessin
+ * @param Y Coordonnée verticale du centre de la zone de dessin
+ * @param W Largeur de la zone de tracé
+ * @param H Hauteur de la zone de tracé
+ * @param Body Code décrivant le contenu de la zone de tracé
+@code
+shadow 0, 0, 800, 600,
+    color "red"
+    circle -20, -20, 30
+    font "Arial", 50
+    color "blue"
+    text "Hello"
+@endcode
+ * @image html TaoShadow.jpg "Simple shadow"
+ */
+shadow(X:real, Y:real, W:integer, H:integer, Body:code); 
+
+
+/**
+ * @~english
+ * Create a drop-shadow texture for the given rendering code
+ * The given code is drawn in a texture of size @a W x @a H pixels,
+ * and a drop shadow is then created for it.
+ * Many attributes of the drop shadows can be controlled individually:
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param W Width of the draw area
+ * @param H Height of the draw area
+ * @param Body Rendering code for the contents of the draw area
+ *
+ * @~french
+ * Crée une texture d'ombre portée pour le code donné
+ * Le code donné est dessiné dans une texture de dimmensions @a W x @a H
+ * pixels, et une texture contentant l'ombre portée correspondante est
+ * retournée et activée.
+ * De nombreux attributs de l'ombre portée peuvent être contrôlés
+ * individuellement :
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param W Largeur de la zone de tracé
+ * @param H Hauteur de la zone de tracé
+ * @param Body Code décrivant le contenu de la zone de tracé
+ */
+shadow_texture(W:integer, H:integer, Body:code); 
+
+/**
+ * @~english
+ * Specify the angle in degrees for drop shadows
+ * @param A Angle in degrees, 0 being towards the top
+ * @see shadow
+ * 
+ * @~french
+ * Indique l'angle en degrés pour les ombres portées
+ * @param A Angle en degrés, 0 étant la verticale (115 par défaut)
+ * @see shadow
+ */
+
+shadow_angle (A:real);
+
+/**
+ * @~english
+ * Specify the distance from the source for the drop shadow
+ * @param D Distance from the origin, defaults to 5
+ * @see shadow
+ * 
+ * @~french
+ * Indique la distance entre la source et l'ombre portée
+ * @param D Distance entre l'ombre portée et la source, 5 par défaut
+ * @see shadow
+ */
+
+shadow_offset (D:real);
+
+/**
+ * @~english
+ * Specify the depth at which the shadow will be drawn
+ * @param D Depth behind the source at which the shadow will be drawn
+ * @see shadow
+ * 
+ * @~french
+ * Indique la profondeur à laquelle l'ombre portée sera dessinée
+ * @param D Profondeur à laquelle l'ombre portée sera dessinée
+ * @see shadow
+ */
+
+shadow_depth (D:real);
+
+/**
+ * @~english
+ * Specify the blur radius for drop shadows
+ * @param R Blur radius for subsequent drop shadows
+ * @see shadow
+ * 
+ * @~french
+ * Indique le rayon de floutage pour les ombres portées
+ * @param R Rayon de floutage pour les ombres portées
+ * @see shadow
+ */
+
+shadow_blur (R:real);
+
+/**
+ * @~english
+ * Specify the color for drop shadows
+ * @param C Color for subsequent drop shadows
+ * @see shadow @see shadow_opacity
+ * 
+ * @~french
+ * Indique la couleur pour les ombres portées
+ * @param C Couleur pour les ombres portées
+ * @see shadow @see shadow_opacity
+ */
+
+shadow_color (C:text);
+
+/**
+ * @~english
+ * Specify the opacity for drop shadows
+ * @param O Opacity for subsequent drop shadows (between 0 and 1)
+ * @see shadow @see shadow_color
+ * 
+ * @~french
+ * Indique l'opacité pour les ombres portées
+ * @param O Opacité pour les ombres portées (entre 0 et 1)
+ * @see shadow @see shadow_color
+ */
+
+shadow_opacity(O:real);
+
+/**
+ * @~english
+ * Specify the color filter identifying shadow casting parts of a picture
+ * @param R Red component between 0 and 1 (default 0)
+ * @param G Green component between 0 and 1 (default 0)
+ * @param B Blue component between 0 and 1 (default 0)
+ * @param A Alpha component between 0 and 1 (default 1)
+ * @see shadow @see shadow_color
+ * 
+ * @~french
+ * Indique le filtre de couleurs identifiant les parties d'un image à ombrer
+ * @param R Composante rouge, entre 0 et 1 (0 par défaut)
+ * @param G Composante verte, entre 0 et 1 (0 par défaut)
+ * @param B Composante bleue, entre 0 et 1 (0 par défaut)
+ * @param A Opacité, entre 0 et 1 (1 par défaut)
+ * @see shadow @see shadow_color
+ */
+
+shadow_filter(R:real, G:real, B:real, A:real);
+
+/**
+ * @~english
  * Create a new texture by applying a filter to the current one
  * Renders the current texture through a filter, typically implemented
  * using a GLSL shader program. The output texture after filtering is
