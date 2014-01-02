@@ -72,45 +72,31 @@ gaussian(RH:integer, RV:integer);
  * Applies a Mean filter on the current texture.
  * It can be used to remove noise of an image for instance.
  *
- * @param n number of iteration of the filter.
- *
  * @~french
  * Applique un filtre moyenneur sur la texture courante.
  * Ce filtre permet de réduire le bruit de l'image.
- *
- * @param n Nombre d'itérations du filtre.
  */
-mean(n:integer);
+mean();
 
 /**
  * @~english
  * Applies an Embross filter on the current texture.
- * It can be used to simulate 3D in an image for instance.
- *
- * @param n number of iteration of the filter.
  *
  * @~french
  * Applique un filtre de relief sur la texture courante.
- * Ce filtre permet de créer un effet de relief sur la texture courante.
- *
- * @param n Nombre d'itérations du filtre.
  */
-emboss(n:integer);
+emboss();
 
 /**
  * @~english
  * Applies a Sharpness filter on the current texture.
  * It can be used to highlight details of an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
  * @~french
  * Applique un filtre de netteté à la texture courante.
  * Ce filtre permet d'améliorer le piqué de l'image.
- *
- * @param n Nombre d'itérations du filtre.
  */
-sharpness(n:integer);
+sharpness();
 
 /**
  * @~english
@@ -118,15 +104,11 @@ sharpness(n:integer);
  * Applies a Laplacian filter on the current texture.
  * It can be used to detect oulines of an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
  * @~french
  * Applique un filtre Laplacien à la texture courante.
  * Ce filtre permet de faire une détection de contour.
- *
- * @param n Nombre d'itérations du filtre.
  */
-laplacian(n:integer);
+laplacian();
 
 /**
  * @~english
@@ -139,6 +121,7 @@ laplacian(n:integer);
  * @param cr Amount of red component. Default value is 0.299.
  * @param cg Amount of green component. Default value is 0.587.
  * @param cb Amount of blue component. Default value is 0.144.
+ * @param ca Amount of alpha component. Default value is 0.0
  *
  * @note This function is optional to apply Black & White filter
  *
@@ -153,13 +136,14 @@ laplacian(n:integer);
  * @param cr Quantité de rouge. Par défaut, 0.299.
  * @param cg Quantité de vert. Par défaut, 0.587.
  * @param cb Quantité de bleu. Par défaut, 0.114.
+ * @param ca Quantité d'opacité. Par défaut, 0.
  */
-black_and_white_levels(cr:real, cg:real, cb:real);
+black_and_white_levels(cr:real, cg:real, cb:real, ca:real);
 
 /**
  * @~english
  * Applies a Black & White filter on the current texture.
- * It can be used to transform a color map into a black & white one.
+ * It can be used to transform a color image into a black & white one.
  *
  * @note color levels can be defined for this filter thanks to @ref black_and_white_levels
  *
@@ -169,6 +153,20 @@ black_and_white_levels(cr:real, cg:real, cb:real);
  * @ref black_and_white_levels.
  */
 black_and_white();
+
+/**
+ * @~english
+ * Applies a Sepia filter on the current texture.
+ *
+ * @note color levels can be defined for this filter thanks to @ref black_and_white_levels
+ *
+ * @~french
+ * Applique un filtre sepia sur la texture en cours
+ * @note La formule de conversion peut être ajustée grâce à
+ * @ref black_and_white_levels.
+ */
+sepia();
+
 
 /**
  * @~english
@@ -469,6 +467,46 @@ rectangle 400, 0, texture_width, texture_height
 @endcode
  */
 render_to_texture (Code:tree);
+
+/**
+ * @~english
+ * Set the amount of filtering
+ * Sets the amount of filtering. When the ratio is 1, the filter
+ * applies fully. When the ratio is 0, the original image is
+ * returned.
+ *
+ * @note Normally, only values between 0 and 1 (or 0% and 100%) are
+ * used, but interesting effects may occasionally be achieved with
+ * values that are out of range, e.g. negative values can be used
+ * to enhance colors with the @ref black_and_white filter.
+ *
+ * @param Amount Amount of application for subsequent filters
+ * 
+ * @~french
+ * Fixe le taux d'application des filtres
+ * Fixe le taux d'application des filtres. Quand le taux est à 1, le
+ * filtre s'applique complètement. Quand le taux est à 0, l'image
+ * originale est préservée.
+ *
+ * @note Normalement, les valeurs entre 0 et 1 (ou entre 0% et 100%)
+ * sont les plus utiles. Néanmoins, des effets intéressants peuvent
+ * être obtenus en utilisant des valeurs en dehors de cet intervalle.
+ * Par exemple, des valeurs négatives permettent d'augmenter l'intensité
+ * des couleurs avec le filtre @ref black_and_white.
+ *
+ * @param Amount Taux d'application pour les filtres ultérieurs
+ */
+
+filtering_amount(Amount:real); 
+
+/**
+ * @~english
+ * Return the current filtering amount
+ * @~french
+ * Retourne le taux de filtrage actuel
+ */
+
+filtering_amount(); 
 
 
 /**

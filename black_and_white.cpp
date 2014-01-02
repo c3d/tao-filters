@@ -30,12 +30,13 @@ bool                  BlackAndWhite::failed = false;
 QGLShaderProgram*     BlackAndWhite::pgm = NULL;
 uint                  BlackAndWhite::colorMapID = 0;
 uint                  BlackAndWhite::levelsID = 0;
+uint                  BlackAndWhite::amountID = 0;
 const QGLContext*     BlackAndWhite::context = NULL;
 
 
 #define GL (*graphic_state)
 
-BlackAndWhite::BlackAndWhite()
+BlackAndWhite::BlackAndWhite(GLfloat color_levels[4])
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
@@ -43,7 +44,7 @@ BlackAndWhite::BlackAndWhite()
 {
     IFTRACE(filters)
         debug() << "Create black and white filter" << "\n";
-
+    setLevels(color_levels);
     checkGLContext();
 }
 
@@ -55,7 +56,7 @@ BlackAndWhite::~BlackAndWhite()
 {}
 
 
-void BlackAndWhite::setLevels(GLfloat color_levels[3])
+void BlackAndWhite::setLevels(GLfloat color_levels[4])
 // ----------------------------------------------------------------------------
 //   Set color levels
 // ----------------------------------------------------------------------------
@@ -63,6 +64,7 @@ void BlackAndWhite::setLevels(GLfloat color_levels[3])
     levels[0] = color_levels[0];
     levels[1] = color_levels[1];
     levels[2] = color_levels[2];
+    levels[3] = color_levels[3];
 }
 
 
@@ -88,8 +90,9 @@ void BlackAndWhite::Draw()
         // Set texture parameters
         GL.Uniform(colorMapID, 0);
 
-        // Set erosion parameters
-        GL.Uniform3fv(levelsID, 1, levels);
+        // Set colorization parameters
+        GL.Uniform4fv(levelsID, 1, levels);
+        GL.Uniform(amountID, amount);
     }
 }
 
@@ -128,6 +131,7 @@ void BlackAndWhite::createShaders()
                 "{"
                 "   gl_Position = ftransform();"
                 "   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+                "   gl_FrontColor = gl_BackColor = gl_Color;"
                 "}";
 
         static string fSrc =
@@ -145,21 +149,17 @@ void BlackAndWhite::createShaders()
                 "**                                                                               \n"
                 "********************************************************************************/\n"
                 "/* Filter parameters */"
-                "uniform vec3 levels;"
+                "uniform vec4 levels;"
+                "uniform float amount;"
                 "uniform sampler2D colorMap;"
-
                 "void main()"
                 "{"
                 "   /* Get the correct texture coordinates */"
                 "   vec2 texCoords = gl_TexCoord[0].st;"
                 "   vec4 color = texture2D(colorMap, texCoords);"
-
-                "   /* Define color levels */"
-                "   vec3 red   = vec3(color.r);"
-                "   vec3 green = vec3(color.g);"
-                "   vec3 blue  = vec3(color.b);"
-
-                "   gl_FragColor = vec4(levels.r * red + levels.g * green +  levels.b * blue, 1.0);"
+                "   float bw = dot(levels, color);"
+                "   vec4 tinted = vec4(bw * gl_Color.rgb, gl_Color.a);"
+                "   gl_FragColor = mix(color, tinted, amount);"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
@@ -193,6 +193,7 @@ void BlackAndWhite::createShaders()
             uint id = pgm->programId();
             colorMapID = glGetUniformLocation(id, "colorMap");
             levelsID   = glGetUniformLocation(id, "levels");
+            amountID   = glGetUniformLocation(id, "amount");
         }
     }
 }

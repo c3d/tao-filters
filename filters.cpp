@@ -24,10 +24,37 @@
 
 XL_DEFINE_TRACES
 
+
 // ============================================================================
-// 
+//
+//   Controling the filtering amount
+//
+// ============================================================================
+
+Tree_p filtering_amount(Tree_p /* self */, scale a)
+// ----------------------------------------------------------------------------
+//   Set the filtering amount to the given value
+// ----------------------------------------------------------------------------
+{
+    Filter::amount = a;
+    return XL::xl_true;
+}
+
+
+Real_p filtering_amount(Tree_p self)
+// ----------------------------------------------------------------------------
+//   Return the current filtering amount
+// ----------------------------------------------------------------------------
+{
+    return new Real(Filter::amount, self->Position());
+}
+
+
+
+// ============================================================================
+//
 //    Horizontal or vertical blur filter
-// 
+//
 // ============================================================================
 
 Tree_p gaussian_pass(uint w, uint h, uint n, bool vert)
@@ -178,8 +205,8 @@ Tree_p laplacian(uint width, uint height)
 //
 // ============================================================================
 
-static GLfloat erodeRadius   = 1.0;
-static GLfloat erodeColor[3] = {2.0, 2.0, 2.0};
+static GLfloat erodeRadius   = 1.0e6;
+static GLfloat erodeColor[4] = { -1, -1, -1, -1 };
 
 Tree_p erode_radius(double r)
 // ----------------------------------------------------------------------------
@@ -187,12 +214,11 @@ Tree_p erode_radius(double r)
 // ----------------------------------------------------------------------------
 {
     erodeRadius = r;
-
     return xl_true;
 }
 
 
-Tree_p erode_color(double r, double g, double b)
+Tree_p erode_color(double r, double g, double b, double a)
 // ----------------------------------------------------------------------------
 //  Set erosion color. By default, this is the texture color.
 // ----------------------------------------------------------------------------
@@ -200,7 +226,7 @@ Tree_p erode_color(double r, double g, double b)
     erodeColor[0] = r;
     erodeColor[1] = g;
     erodeColor[2] = b;
-
+    erodeColor[3] = a;
     return xl_true;
 }
 
@@ -213,7 +239,6 @@ Tree_p erode(double x, double y, double threshold)
     Erosion* erosion = new Erosion(x, y, threshold);
     erosion->setColor(erodeColor);
     erosion->setRadius(erodeRadius);
-
     Filter::tao->AddToLayout2(Filter::render_callback,
                               Filter::identify_callback,
                               erosion, Filter::delete_callback);
@@ -227,9 +252,9 @@ Tree_p erode(double x, double y, double threshold)
 //
 // ============================================================================
 
-static GLfloat levels[3] = { 0.299, 0.587, 0.114 };
+static GLfloat levels[4] = { 0.299, 0.587, 0.114, 0.0 };
 
-Tree_p black_and_white_levels(double r, double g, double b)
+Tree_p black_and_white_levels(double r, double g, double b, double a)
 // ----------------------------------------------------------------------------
 //  Set black and white levels.
 // ----------------------------------------------------------------------------
@@ -237,7 +262,7 @@ Tree_p black_and_white_levels(double r, double g, double b)
     levels[0] = r;
     levels[1] = g;
     levels[2] = b;
-
+    levels[3] = a;
     return xl_true;
 }
 
@@ -247,8 +272,7 @@ Tree_p black_and_white()
 //  Define a black and white filter
 // ----------------------------------------------------------------------------
 {
-    BlackAndWhite* bw = new BlackAndWhite();
-    bw->setLevels(levels);
+    BlackAndWhite* bw = new BlackAndWhite(levels);
 
     Filter::tao->AddToLayout2(Filter::render_callback,
                               Filter::identify_callback,
@@ -259,9 +283,9 @@ Tree_p black_and_white()
 
 
 // ============================================================================
-// 
+//
 //    Module initialization
-// 
+//
 // ============================================================================
 
 int module_init(const Tao::ModuleApi *api, const Tao::ModuleInfo *)

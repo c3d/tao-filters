@@ -42,111 +42,79 @@ module_description "fr",
 // 
 // ============================================================================
 
-gaussian Radius:integer ->
+gaussian Radius:real ->
 // ----------------------------------------------------------------------------
 //   Apply a two-pass gaussian filter with the given radius
 // ----------------------------------------------------------------------------
     if Radius > 0 then
-        render_to_texture { gaussian_h texture_width, texture_height, Radius }
-        render_to_texture { gaussian_v texture_width, texture_height, Radius }
+        render_to_texture { gaussian_h texture_width, texture_height, integer Radius }
+        render_to_texture { gaussian_v texture_width, texture_height, integer Radius }
 
 
-gaussian RH:integer, RV:integer ->
+gaussian RH:real, RV:real ->
 // ----------------------------------------------------------------------------
 //    Apply a gaussian filter with different vertical and horizontal radii
 // ----------------------------------------------------------------------------
     if RH > 0 then
-        render_to_texture { gaussian_h texture_width, texture_height, RH }
+        render_to_texture { gaussian_h texture_width, texture_height, integer RH }
     if RV > 0 then
-        render_to_texture { gaussian_v texture_width, texture_height, RV }
+        render_to_texture { gaussian_v texture_width, texture_height, integer RV }
 
 
-gaussian_3x3 iter:integer ->
+gaussian ->
 // ----------------------------------------------------------------------------
-//    Apply a Gaussian 3x3 kernel
+//   Apply a default 3x3 gaussian filter (special hard-coded case)
 // ----------------------------------------------------------------------------
-// The Gaussian 3x3 filter is special hard-coded case
-    gaussian_3x3_iter with 1..iter
+    render_to_texture {gaussian_3x3_filter texture_width, texture_height}
 
 
-gaussian_3x3_iter i ->
+mean ->
 // ----------------------------------------------------------------------------
-//   Apply an iteration of the Gaussian filter
+//   Apply mean filter on the current texture
 // ----------------------------------------------------------------------------
-    render_to_texture {gaussian_3x3 texture_width, texture_height}
+    render_to_texture {mean_filter texture_width, texture_height}
 
 
-mean iter:integer ->
-// ----------------------------------------------------------------------------
-//    Apply a mean filter on the current texture
-// ----------------------------------------------------------------------------
-// The mean filter can be used to remove noise of an image
-    mean_iter with 1..iter
-
-mean_iter i ->
-// ----------------------------------------------------------------------------
-//   Apply an iteration of the mean filter
-// ----------------------------------------------------------------------------
-    render_to_texture {mean texture_width, texture_height}
-
-
-emboss iter:integer ->
+emboss ->
 // ----------------------------------------------------------------------------
 //   Apply emboss filter on current texture
 // ----------------------------------------------------------------------------
-// This filter can be used to simulate a kind of 3D effect on an image
-    emboss_iter with 1..iter
+    render_to_texture {emboss_filter texture_width, texture_height}
 
 
-emboss_iter i ->
+sharpness ->
 // ----------------------------------------------------------------------------
-//   Apply an iteration of the emboss filter
+//    Apply sharpness filter to the current texture
 // ----------------------------------------------------------------------------
-    render_to_texture {emboss texture_width, texture_height}
+    render_to_texture {sharpness_filter texture_width, texture_height}
 
 
-sharpness iter:integer ->
+laplacian ->
 // ----------------------------------------------------------------------------
-//    Apply a sharpness filter to the current texture
+//   Apply a Laplacian filter to the current texture
 // ----------------------------------------------------------------------------
-//  The sharpness filter can be used to highlight details of an image
-    sharpness_iter with 1..iter
-
-
-sharpness_iter i ->
-// ----------------------------------------------------------------------------
-//    Apply an iteration of a sharpness filter
-// ----------------------------------------------------------------------------
-    render_to_texture {sharpness texture_width, texture_height}
-
-
-laplacian iter:integer ->
-// ----------------------------------------------------------------------------
-//   Apply a Laplacian filter 'iter' times
-// ----------------------------------------------------------------------------
-//   A Laplacian filter can be used to detect the outlines of an image
-    laplacian_iter with 1..iter
-
-
-laplacian_iter i ->
-// ----------------------------------------------------------------------------
-//   Apply an iteration of the Laplacian filter on the current texture
-// ----------------------------------------------------------------------------
-    render_to_texture {laplacian texture_width, texture_height}
+    render_to_texture {laplacian_filter texture_width, texture_height}
 
 
 erode x:real, y:real, threshold:real ->
 // ----------------------------------------------------------------------------
 //    Apply an erosion filter
 // ----------------------------------------------------------------------------
-    render_to_texture {erode x, y, threshold}
+    render_to_texture {erode_filter x, y, threshold}
 
 
 black_and_white ->
 // ----------------------------------------------------------------------------
 //   Apply a black-and-white filter
 // ----------------------------------------------------------------------------
-    render_to_texture black_and_white
+    render_to_texture { black_and_white_filter }
+
+
+sepia ->
+// ----------------------------------------------------------------------------
+//   Apply a Sepia filter
+// ----------------------------------------------------------------------------
+    render_to_texture { color "#E0C498"; black_and_white_filter }
 
 
 
@@ -181,6 +149,15 @@ shadow_filter  R:real, G:real, B:real, A:real ->
 
 shadow_source           -> 0
 shadow_texture          -> 0
+
+
+shadow_scaled_texture W:real, H:real, S:real, Body ->
+// ----------------------------------------------------------------------------
+//   Render the shadow in a texture
+// ----------------------------------------------------------------------------
+    shadow_texture integer(W/S), integer(H/S),
+        scale 1.0/S
+        Body
 
 
 shadow_texture W:integer, H:integer, Body ->

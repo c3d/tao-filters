@@ -43,13 +43,13 @@ protected:
     virtual void    createShaders();
 
 private:
-    int   w, h; // texture parameters
-    float level;      // gray level
-    float kernel[9];  // convolution kernel
+    int   w, h;                 // Texture size
+    float level;                // Gray level
+    float kernel[9];            // Convolution kernel
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static uint widthID, heightID, colorMapID, levelID, kernelID;
+    static uint widthID, heightID, colorMapID, levelID, amountID, kernelID;
     static const QGLContext* context;
 };
 

@@ -52,8 +52,7 @@ public:
 public:
     // Pointer to Tao functions
     static const Tao::ModuleApi *tao;
+    static float                 amount;
 };
-
-
 
 #endif

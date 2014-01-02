@@ -32,7 +32,7 @@ struct Erosion : public Filter
     Erosion(float x, float y, float threshold);
     ~Erosion();
 
-    void setColor(GLfloat erode_color[3]);
+    void setColor(GLfloat erode_color[4]);
     void setRadius(float radius);
 
     // Draw erosion filter
@@ -42,14 +42,14 @@ protected:
     virtual void    createShaders();
 
 private:
-    GLfloat color[3];  // erosion color
-    float   x, y;      // erosion center
-    float   threshold; // erosion threshold
-    float   radius;    // erosion radius
+    GLfloat color[4];           // Erosion color
+    float   x, y;               // Erosion center
+    float   threshold;          // Erosion threshold
+    float   radius;             // Erosion radius
 
     static bool failed;
     static QGLShaderProgram* pgm;
-    static uint colorMapID, radiusID, thresholdID, colorID, centerID;
+    static uint colorMapID, radiusID, amountID, thresholdID, colorID, centerID;
     static const QGLContext* context;
 };
 

@@ -36,6 +36,7 @@ uint                  ConvolutionFilter::widthID = 0;
 uint                  ConvolutionFilter::heightID = 0;
 uint                  ConvolutionFilter::colorMapID = 0;
 uint                  ConvolutionFilter::levelID = 0;
+uint                  ConvolutionFilter::amountID = 0;
 uint                  ConvolutionFilter::kernelID = 0;
 const QGLContext*     ConvolutionFilter::context = NULL;
 
@@ -109,6 +110,7 @@ void ConvolutionFilter::Draw()
 
         // Set convolution parameters
         GL.Uniform(levelID, level);
+        GL.Uniform(amountID, amount);
         GL.Uniform1fv(kernelID, sizeof(kernel), kernel);
     }
 }
@@ -184,6 +186,7 @@ void ConvolutionFilter::createShaders()
             "uniform float pixel_width; "    // Texture width
             "uniform float pixel_height; "   // Texture height
             "uniform float level;"           // Gray level
+            "uniform float amount;"
             "uniform float kernel[9];"       // Convolution kernel
             "uniform sampler2D colorMap;"
             "varying vec2 texCoord[9];"
@@ -191,16 +194,18 @@ void ConvolutionFilter::createShaders()
             "void main()"
             "{"
             "   /* Get the correct texture coordinates */"
-            "   gl_FragColor = vec4(level) "
+            "   vec4 source = texture2D(colorMap, texCoord[4]);"
+            "   vec4 color = vec4(level) "
             "          + kernel[0] * texture2D(colorMap, texCoord[0])"
             "          + kernel[1] * texture2D(colorMap, texCoord[1])"
             "          + kernel[2] * texture2D(colorMap, texCoord[2])"
             "          + kernel[3] * texture2D(colorMap, texCoord[3])"
-            "          + kernel[4] * texture2D(colorMap, texCoord[4])"
+            "          + kernel[4] * source"
             "          + kernel[5] * texture2D(colorMap, texCoord[5])"
             "          + kernel[6] * texture2D(colorMap, texCoord[6])"
             "          + kernel[7] * texture2D(colorMap, texCoord[7])"
             "          + kernel[8] * texture2D(colorMap, texCoord[8]);"
+            "    gl_FragColor = mix(source, color, amount);"
             "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
@@ -236,6 +241,7 @@ void ConvolutionFilter::createShaders()
             heightID   = glGetUniformLocation(id, "pixel_height");
             colorMapID = glGetUniformLocation(id, "colorMap");
             levelID    = glGetUniformLocation(id, "level");
+            amountID   = glGetUniformLocation(id, "amount");
             kernelID   = glGetUniformLocation(id, "kernel");
         }
     }

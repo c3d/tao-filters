@@ -35,6 +35,10 @@
 
 using namespace XL;
 
+// Filtering amount
+Tree_p filtering_amount(Tree_p self, scale a);
+Real_p filtering_amount(Tree_p self);
+
 // Two-pass gaussian filter
 Tree_p gaussian_pass(uint width, uint height, uint n, bool vertical);
 
@@ -47,11 +51,11 @@ Tree_p laplacian(uint width, uint height);
 
 // Erosion filter
 Tree_p erode_radius(double r);
-Tree_p erode_color(double r, double g, double b);
+Tree_p erode_color(double r, double g, double b, double a);
 Tree_p erode(double x, double y, double threshold);
 
 // Black and white filter
-Tree_p black_and_white_levels(double r, double g, double b);
+Tree_p black_and_white_levels(double r, double g, double b, double a);
 Tree_p black_and_white();
 
 #endif
