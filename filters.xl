@@ -1,18 +1,18 @@
 // ****************************************************************************
-//  filters.xl                                                     Tao project
+//  filters.xl                                                     Tao project 
 // ****************************************************************************
-//
+// 
 //   File Description:
-//
+// 
 //      Define the image filtering primitives:
 //      - Gaussian blur (two-pass)
 //      - Mean
 //      - Laplacian
 //      - Emboss
 //      - Sharpness
-//
-//
-//
+// 
+// 
+// 
 // ****************************************************************************
 // This software is property of Taodyne SAS - Confidential
 // Ce logiciel est la propriété de Taodyne SAS - Confidentiel
@@ -28,7 +28,7 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.018
+    version 1.008
 
 module_description "fr",
     name "Filtrage"
@@ -37,9 +37,9 @@ module_description "fr",
 
 
 // ============================================================================
-//
+// 
 //    Filter primitives
-//
+// 
 // ============================================================================
 
 gaussian Radius:real ->
@@ -119,9 +119,9 @@ sepia ->
 
 
 // ============================================================================
-//
+// 
 //   Shadows
-//
+// 
 // ============================================================================
 
 shadow_angle            -> 115.0
@@ -208,74 +208,9 @@ shadow X:real, Y:real, W:integer, H:integer, Body ->
 
 
 // ============================================================================
-//
-//   Borders
-//
-// ============================================================================
-
-fuzzy_border Ratio:real ->
-// ----------------------------------------------------------------------------
-//   Draw a fuzzy border around a picture
-// ----------------------------------------------------------------------------
-    render_to_texture
-        fuzzy_border_ratio -> 0.0
-        shader_program
-            fragment_shader <<
-                uniform sampler2D texture;
-                uniform float     size;
-                void main(void)
-                {
-                    vec2  pos    = gl_TexCoord[0].xy;
-                    vec4 color   = texture2D(texture, pos);
-                    float alpha  = smoothstep(0.0, size, pos.x)
-                                 * smoothstep(0.0, size, pos.y)
-                                 * (1.0-smoothstep(1.0-size, 1.0, pos.x))
-                                 * (1.0-smoothstep(1.0-size, 1.0, pos.y));
-                    gl_FragColor = vec4(color.rgb, color.a * alpha);
-                }
-            >>
-        fuzzy_border_ratio := Ratio
-        shader_set size := fuzzy_border_ratio
-
-
-circle_fuzzy_border X:real, Y:real, Radius:real, Ratio:real ->
-// ----------------------------------------------------------------------------
-//   Draw a circular fuzzy border around a picture
-// ----------------------------------------------------------------------------
-    render_to_texture
-        circle_fuzzy_border_ratio -> 0.0
-        circle_fuzzy_border_radius -> 0.0
-        circle_fuzzy_border_x -> 0.0
-        circle_fuzzy_border_y -> 0.0
-        shader_program
-            fragment_shader <<
-                uniform sampler2D texture;
-                uniform float     size, radius, x, y;
-                void main(void)
-                {
-                    vec2  pos    = gl_TexCoord[0].xy;
-                    vec2  center = vec2(x, y);
-                    vec4 color   = texture2D(texture, pos);
-                    float dist   = length(pos - center);
-                    float alpha  = 1.0-smoothstep(radius-size, radius,dist);
-                    gl_FragColor = vec4(color.rgb, color.a * alpha);
-                }
-            >>
-        circle_fuzzy_border_ratio := Ratio
-        circle_fuzzy_border_radius := Radius
-        circle_fuzzy_border_x := 0.5 * X + 0.5
-        circle_fuzzy_border_y := 0.5 * Y + 0.5
-        shader_set size := circle_fuzzy_border_ratio
-        shader_set radius := circle_fuzzy_border_radius * 0.5
-        shader_set x := circle_fuzzy_border_x
-        shader_set y := circle_fuzzy_border_y
-
-
-
-// ============================================================================
-//
+// 
 //   Render to Texture
-//
+// 
 // ============================================================================
 
 TEXTURE_WIDTH   -> 0
