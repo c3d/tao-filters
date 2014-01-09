@@ -1,5 +1,5 @@
 @INCLUDE = ../../Doxyfile
 PROJECT_NAME = \"Filters\"
-PROJECT_NUMBER = 1.006
-QHP_NAMESPACE = com.taodyne.TaoPresentations.modules.Filters.1.006
+PROJECT_NUMBER = 1.016
+QHP_NAMESPACE = com.taodyne.TaoPresentations.modules.Filters.1.016
 QHP_VIRTUAL_FOLDER = Filters

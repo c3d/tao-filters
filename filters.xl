@@ -28,7 +28,7 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.008
+    version 1.018
 
 module_description "fr",
     name "Filtrage"
