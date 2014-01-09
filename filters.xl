@@ -1,8 +1,25 @@
-// Filters module definition
+// ****************************************************************************
+//  filters.xl                                                     Tao project
+// ****************************************************************************
 //
-// This module defines the filter primitives
+//   File Description:
 //
-// Copyright 2010-2011 Taodyne
+//      Define the image filtering primitives:
+//      - Gaussian blur (two-pass)
+//      - Mean
+//      - Laplacian
+//      - Emboss
+//      - Sharpness
+//
+//
+//
+// ****************************************************************************
+// This software is property of Taodyne SAS - Confidential
+// Ce logiciel est la propriété de Taodyne SAS - Confidentiel
+//  (C) 2012 Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+//  (C) 2013 Christophe de Dinechin <christophe@taodyne.com>
+//  (C) 2012-2013 Taodyne SAS
+// ****************************************************************************
 
 module_description
     id "c90d3b0b-a461-48d4-a1e0-db212cd3e1ec"
@@ -11,118 +28,275 @@ module_description
     description "A module to apply filters on imported images."
     author "Taodyne SAS"
     website "http://www.taodyne.com"
-    version 1.007
+    version 1.018
 
 module_description "fr",
     name "Filtrage"
     description "Permet d'appliquer de nombreux filtres sur les images importées dans Tao."
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Filters primitives
-// -------------------------------------------------------------------------------------------------------------------
-
-gaussian iter:integer ->
-    /**
-    * Apply a gaussian filter on the current texture. It can be used to add blur on an image for instance.
-    **/
-    gaussian_iter with 1..iter
-
-gaussian_iter i ->
-    /**
-    * Apply an iterative gaussian filter on the current texture.
-    **/
-    render_to_texture {gaussian texture_unit, texture_width, texture_height}
 
 
-mean iter:integer ->
-    /**
-    * Apply a mean filter on the current texture. It can be used to remove noise of an image for instance.
-    **/
-    mean_iter with 1..iter
+// ============================================================================
+//
+//    Filter primitives
+//
+// ============================================================================
 
-mean_iter i ->
-    /**
-    * Apply an iterative mean filter on the current texture.
-    **/
-    render_to_texture {mean texture_unit, texture_width, texture_height}
-
-
-emboss iter:integer ->
-    /**
-    * Apply a embross filter on the current texture. It can be used to simulate 3D of an image for instance.
-    **/
-    emboss_iter with 1..iter
-
-emboss_iter i ->
-    /**
-    * Apply an iterative emboss filter on the current texture.
-    **/
-    render_to_texture {emboss texture_unit, texture_width, texture_height}
+gaussian Radius:real ->
+// ----------------------------------------------------------------------------
+//   Apply a two-pass gaussian filter with the given radius
+// ----------------------------------------------------------------------------
+    if Radius > 0 then
+        render_to_texture { gaussian_h texture_width, texture_height, integer Radius }
+        render_to_texture { gaussian_v texture_width, texture_height, integer Radius }
 
 
-sharpness iter:integer ->
-    /**
-    * Apply a sharpness filter on the current texture. It can be used to highlight details of an image for instance.
-    **/
-    sharpness_iter with 1..iter
-
-sharpness_iter i ->
-    /**
-    * Apply an iterative sharpness filter on the current texture.
-    **/
-    render_to_texture {sharpness texture_unit, texture_width, texture_height}
+gaussian RH:real, RV:real ->
+// ----------------------------------------------------------------------------
+//    Apply a gaussian filter with different vertical and horizontal radii
+// ----------------------------------------------------------------------------
+    if RH > 0 then
+        render_to_texture { gaussian_h texture_width, texture_height, integer RH }
+    if RV > 0 then
+        render_to_texture { gaussian_v texture_width, texture_height, integer RV }
 
 
-laplacian iter:integer ->
-    /**
-    * Apply a laplacian filter on the current texture. It can be used to detect oulines of an image for instance.
-    **/    
-    laplacian_iter with 1..iter
-
-laplacian_iter i ->
-    /**
-    * Apply an iterative laplacian filter on the current texture.
-    **/
-    render_to_texture {laplacian texture_unit, texture_width, texture_height}
+gaussian ->
+// ----------------------------------------------------------------------------
+//   Apply a default 3x3 gaussian filter (special hard-coded case)
+// ----------------------------------------------------------------------------
+    render_to_texture {gaussian_3x3_filter texture_width, texture_height}
 
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Eroding filter
-// -------------------------------------------------------------------------------------------------------------------
+mean ->
+// ----------------------------------------------------------------------------
+//   Apply mean filter on the current texture
+// ----------------------------------------------------------------------------
+    render_to_texture {mean_filter texture_width, texture_height}
+
+
+emboss ->
+// ----------------------------------------------------------------------------
+//   Apply emboss filter on current texture
+// ----------------------------------------------------------------------------
+    render_to_texture {emboss_filter texture_width, texture_height}
+
+
+sharpness ->
+// ----------------------------------------------------------------------------
+//    Apply sharpness filter to the current texture
+// ----------------------------------------------------------------------------
+    render_to_texture {sharpness_filter texture_width, texture_height}
+
+
+laplacian ->
+// ----------------------------------------------------------------------------
+//   Apply a Laplacian filter to the current texture
+// ----------------------------------------------------------------------------
+    render_to_texture {laplacian_filter texture_width, texture_height}
+
 
 erode x:real, y:real, threshold:real ->
-    /**
-    * Apply Erosion filter.
-    **/
-    render_to_texture {erode texture_unit, x, y, threshold}
+// ----------------------------------------------------------------------------
+//    Apply an erosion filter
+// ----------------------------------------------------------------------------
+    render_to_texture {erode_filter x, y, threshold}
 
-// -------------------------------------------------------------------------------------------------------------------
-//   Black & White filter
-// -------------------------------------------------------------------------------------------------------------------
 
 black_and_white ->
-    /**
-    * Apply Black & White filter
-    **/
-    render_to_texture black_and_white texture_unit
+// ----------------------------------------------------------------------------
+//   Apply a black-and-white filter
+// ----------------------------------------------------------------------------
+    render_to_texture { black_and_white_filter }
 
-// -------------------------------------------------------------------------------------------------------------------
+
+sepia ->
+// ----------------------------------------------------------------------------
+//   Apply a Sepia filter
+// ----------------------------------------------------------------------------
+    render_to_texture { color "#E0C498"; black_and_white_filter }
+
+
+
+// ============================================================================
+//
+//   Shadows
+//
+// ============================================================================
+
+shadow_angle            -> 115.0
+shadow_offset           -> 5.0
+shadow_depth            -> 5.0
+shadow_blur             -> 5.0
+shadow_color            -> "black"
+shadow_opacity          -> 0.75
+shadow_filter_red       -> 0.0
+shadow_filter_green     -> 0.0
+shadow_filter_blue      -> 0.0
+shadow_filter_alpha     -> 1.0
+
+shadow_angle   A:real   -> shadow_angle   := A
+shadow_offset  D:real   -> shadow_offset  := D
+shadow_depth   Z:real   -> shadow_depth   := Z
+shadow_blur    B:real   -> shadow_blur    := B
+shadow_color   C:text   -> shadow_color   := C
+shadow_opacity O:real   -> shadow_opacity := O
+shadow_filter  R:real, G:real, B:real, A:real ->
+    shadow_filter_red   := R
+    shadow_filter_green := G
+    shadow_filter_blue  := B
+    shadow_filter_alpha := A
+
+shadow_source           -> 0
+shadow_texture          -> 0
+
+
+shadow_scaled_texture W:real, H:real, S:real, Body ->
+// ----------------------------------------------------------------------------
+//   Render the shadow in a texture
+// ----------------------------------------------------------------------------
+    shadow_texture integer(W/S), integer(H/S),
+        scale 1.0/S
+        Body
+
+
+shadow_texture W:integer, H:integer, Body ->
+// ----------------------------------------------------------------------------
+//   Render the shadow in a texture
+// ----------------------------------------------------------------------------
+    shadow_source := frame_texture (W, H, { blend_function "ONE", "ZERO"; Body})
+    shadow_texture := render_to_texture
+        shader_program
+            vertex_shader <<
+                void main(void)
+                {
+                    gl_Position = ftransform();
+                    gl_FrontColor = gl_Color;
+                    gl_BackColor = gl_Color;
+                    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+                }
+            >>
+            fragment_shader <<
+                uniform sampler2D texture;
+                uniform vec4      filter;
+                void main(void)
+                {
+                    vec2  pos    = gl_TexCoord[0].xy;
+                    float shadow = dot(texture2D(texture, pos), filter);
+                    gl_FragColor = shadow * gl_Color;
+                }
+            >>
+        shader_set filter := shadow_filter_red, shadow_filter_green, shadow_filter_blue, shadow_filter_alpha
+        color shadow_color, shadow_opacity
+    if shadow_blur > 0.0 then
+        gaussian integer(shadow_blur)
+
+
+shadow X:real, Y:real, W:integer, H:integer, Body ->
+// ----------------------------------------------------------------------------
+//   Draw the Body with a drop shadow
+// ----------------------------------------------------------------------------
+    locally
+        shadow_texture W, H, Body
+        color "white"
+        locally
+            shadow_radians -> shadow_angle * pi / 180
+            translate shadow_offset * sin shadow_radians, shadow_offset * cos shadow_radians, -shadow_depth
+            rectangle X, Y, W, H
+        texture shadow_source
+        rectangle X, Y, W, H
+
+
+// ============================================================================
+//
+//   Borders
+//
+// ============================================================================
+
+fuzzy_border Ratio:real ->
+// ----------------------------------------------------------------------------
+//   Draw a fuzzy border around a picture
+// ----------------------------------------------------------------------------
+    render_to_texture
+        fuzzy_border_ratio -> 0.0
+        shader_program
+            fragment_shader <<
+                uniform sampler2D texture;
+                uniform float     size;
+                void main(void)
+                {
+                    vec2  pos    = gl_TexCoord[0].xy;
+                    vec4 color   = texture2D(texture, pos);
+                    float alpha  = smoothstep(0.0, size, pos.x)
+                                 * smoothstep(0.0, size, pos.y)
+                                 * (1.0-smoothstep(1.0-size, 1.0, pos.x))
+                                 * (1.0-smoothstep(1.0-size, 1.0, pos.y));
+                    gl_FragColor = vec4(color.rgb, color.a * alpha);
+                }
+            >>
+        fuzzy_border_ratio := Ratio
+        shader_set size := fuzzy_border_ratio
+
+
+circle_fuzzy_border X:real, Y:real, Radius:real, Ratio:real ->
+// ----------------------------------------------------------------------------
+//   Draw a circular fuzzy border around a picture
+// ----------------------------------------------------------------------------
+    render_to_texture
+        circle_fuzzy_border_ratio -> 0.0
+        circle_fuzzy_border_radius -> 0.0
+        circle_fuzzy_border_x -> 0.0
+        circle_fuzzy_border_y -> 0.0
+        shader_program
+            fragment_shader <<
+                uniform sampler2D texture;
+                uniform float     size, radius, x, y;
+                void main(void)
+                {
+                    vec2  pos    = gl_TexCoord[0].xy;
+                    vec2  center = vec2(x, y);
+                    vec4 color   = texture2D(texture, pos);
+                    float dist   = length(pos - center);
+                    float alpha  = 1.0-smoothstep(radius-size, radius,dist);
+                    gl_FragColor = vec4(color.rgb, color.a * alpha);
+                }
+            >>
+        circle_fuzzy_border_ratio := Ratio
+        circle_fuzzy_border_radius := Radius
+        circle_fuzzy_border_x := 0.5 * X + 0.5
+        circle_fuzzy_border_y := 0.5 * Y + 0.5
+        shader_set size := circle_fuzzy_border_ratio
+        shader_set radius := circle_fuzzy_border_radius * 0.5
+        shader_set x := circle_fuzzy_border_x
+        shader_set y := circle_fuzzy_border_y
+
+
+
+// ============================================================================
+//
 //   Render to Texture
-// -------------------------------------------------------------------------------------------------------------------
+//
+// ============================================================================
 
-TEXTURE_WIDTH -> 0
-TEXTURE_HEIGHT -> 0
-TEXTURE_ID -> 0
+TEXTURE_WIDTH   -> 0
+TEXTURE_HEIGHT  -> 0
+TEXTURE_ID      -> 0
 
 render_to_texture RENDER_CODE ->
-    /**
-    * Allow to render the current texture modified by RENDER_CODE to new one.
-    **/
+// ----------------------------------------------------------------------------
+//   Render 'RENDER_CODE' into a new texture
+// ----------------------------------------------------------------------------
+//   Note that the texture is rendered in the current texture unit, but
+//   that within the body of frame_texture, we render with a single
+//   texture and map this unique texture to texture 0.
+
     TEXTURE_WIDTH := texture_width
     TEXTURE_HEIGHT := texture_height
     TEXTURE_ID := texture
+
     frame_texture TEXTURE_WIDTH, TEXTURE_HEIGHT,
         color "white"
         texture TEXTURE_ID
-        do RENDER_CODE
+        blend_function "ONE", "ZERO"
+        RENDER_CODE
         rectangle 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT

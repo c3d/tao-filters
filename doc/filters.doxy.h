@@ -40,68 +40,63 @@
  * Applies a Gaussian filter on current texture.
  * It can be used to add blur on an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
+ * @param Radius Radius for the filter in pixels
  *
  * @~french
  * Applique un filtre Gaussien sur la texture courante.
  * Ce filtre permet d'ajouter du flou à l'image.
  *
- * @param n Nombre d'itérations du filtre.
+ * @param Radius Rayon du filtre en pixels
  */
-gaussian(n:integer);
+gaussian(Radius:integer);
+
+/**
+ * @~english
+ * Applies a Gaussian filter on current texture.
+ * It can be used to add blur on an image for instance.
+ *
+ * @param RH Horizontal radius for the filter in pixels
+ * @param RV Vertical radius for the filter in pixels
+ *
+ * @~french
+ * Applique un filtre Gaussien sur la texture courante.
+ * Ce filtre permet d'ajouter du flou à l'image.
+ *
+ * @param RH Rayon du filtre en pixels le long de l'axe horizontal
+ * @param RV Rayon du filtre en pixels le long de l'axe vertical
+ */
+gaussian(RH:integer, RV:integer);
 
 /**
  * @~english
  * Applies a Mean filter on the current texture.
  * It can be used to remove noise of an image for instance.
  *
- * @param n number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
- *
  * @~french
  * Applique un filtre moyenneur sur la texture courante.
  * Ce filtre permet de réduire le bruit de l'image.
- *
- * @param n Nombre d'itérations du filtre.
  */
-mean(n:integer);
+mean();
 
 /**
  * @~english
  * Applies an Embross filter on the current texture.
- * It can be used to simulate 3D in an image for instance.
- *
- * @param n number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
  *
  * @~french
  * Applique un filtre de relief sur la texture courante.
- * Ce filtre permet de créer un effet de relief sur la texture courante.
- *
- * @param n Nombre d'itérations du filtre.
  */
-emboss(n:integer);
+emboss();
 
 /**
  * @~english
  * Applies a Sharpness filter on the current texture.
  * It can be used to highlight details of an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
- *
  * @~french
  * Applique un filtre de netteté à la texture courante.
  * Ce filtre permet d'améliorer le piqué de l'image.
- *
- * @param n Nombre d'itérations du filtre.
  */
-sharpness(n:integer);
+sharpness();
 
 /**
  * @~english
@@ -109,17 +104,11 @@ sharpness(n:integer);
  * Applies a Laplacian filter on the current texture.
  * It can be used to detect oulines of an image for instance.
  *
- * @param n maximum number of iteration of the filter.
- *
- * @note The result texture is obtained thanks to RenderToTexture module.
- *
  * @~french
  * Applique un filtre Laplacien à la texture courante.
  * Ce filtre permet de faire une détection de contour.
- *
- * @param n Nombre d'itérations du filtre.
  */
-laplacian(n:integer);
+laplacian();
 
 /**
  * @~english
@@ -132,6 +121,7 @@ laplacian(n:integer);
  * @param cr Amount of red component. Default value is 0.299.
  * @param cg Amount of green component. Default value is 0.587.
  * @param cb Amount of blue component. Default value is 0.144.
+ * @param ca Amount of alpha component. Default value is 0.0
  *
  * @note This function is optional to apply Black & White filter
  *
@@ -146,13 +136,14 @@ laplacian(n:integer);
  * @param cr Quantité de rouge. Par défaut, 0.299.
  * @param cg Quantité de vert. Par défaut, 0.587.
  * @param cb Quantité de bleu. Par défaut, 0.114.
+ * @param ca Quantité d'opacité. Par défaut, 0.
  */
-black_and_white_levels(cr:real, cg:real, cb:real);
+black_and_white_levels(cr:real, cg:real, cb:real, ca:real);
 
 /**
  * @~english
  * Applies a Black & White filter on the current texture.
- * It can be used to transform a color map into a black & white one.
+ * It can be used to transform a color image into a black & white one.
  *
  * @note color levels can be defined for this filter thanks to @ref black_and_white_levels
  *
@@ -162,6 +153,20 @@ black_and_white_levels(cr:real, cg:real, cb:real);
  * @ref black_and_white_levels.
  */
 black_and_white();
+
+/**
+ * @~english
+ * Applies a Sepia filter on the current texture.
+ *
+ * @note color levels can be defined for this filter thanks to @ref black_and_white_levels
+ *
+ * @~french
+ * Applique un filtre sepia sur la texture en cours
+ * @note La formule de conversion peut être ajustée grâce à
+ * @ref black_and_white_levels.
+ */
+sepia();
+
 
 /**
  * @~english
@@ -225,6 +230,287 @@ erode_radius(radius:real);
  * @param threshold Tolérance de l'érosion.
  */
 erode(x:real, y:real, threshold:real);
+
+
+/**
+ * @~english
+ * Render the given code with a drop shadow.
+ * The given code is drawn in a texture of size @a W x @a H pixels,
+ * at position @a X, @a Y. A drop shadow is behind it at a depth
+ * specified by @ref shadow_depth.
+ * Many attributes of the drop shadows can be controlled individually:
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param X Horizontal coordinate of the center of the draw area
+ * @param Y Vertical coordinate of the center of the draw area
+ * @param W Width of the draw area
+ * @param H Height of the draw area
+ * @param Body Rendering code for the contents of the draw area
+ *
+@code
+shadow 0, 0, 800, 600,
+    color "red"
+    circle -20, -20, 30
+    font "Arial", 50
+    color "blue"
+    text "Hello"
+@endcode
+ *
+ * @image html TaoShadow.jpg "Simple shadow"
+ *
+ * @~french
+ * Affiche le code donné avec une ombre portée
+ * Le code donné est dessiné dans une texture de dimensions @a W x @a H
+ * pixels, aux coordonnées @a X, @a Y. Une ombre portée est dessinée
+ * derrière cette texture à une distance indiquée par @ref shadow_depth.
+ * De nombreux attributs de l'ombre portée peuvent être contrôlés
+ * individuellement :
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param X Coordonnée horizontale du centre de la zone de dessin
+ * @param Y Coordonnée verticale du centre de la zone de dessin
+ * @param W Largeur de la zone de tracé
+ * @param H Hauteur de la zone de tracé
+ * @param Body Code décrivant le contenu de la zone de tracé
+ *
+@code
+shadow 0, 0, 800, 600,
+    color "red"
+    circle -20, -20, 30
+    font "Arial", 50
+    color "blue"
+    text "Hello"
+@endcode
+ *
+ * @image html TaoShadow.jpg "Exemple d'ombrage simple"
+ */
+shadow(X:real, Y:real, W:integer, H:integer, Body:code); 
+
+
+/**
+ * @~english
+ * Create a drop-shadow texture for the given rendering code
+ * The given code is drawn in a texture of size @a W x @a H pixels,
+ * and a drop shadow is then created for it.
+ * Many attributes of the drop shadows can be controlled individually:
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param W Width of the draw area
+ * @param H Height of the draw area
+ * @param Body Rendering code for the contents of the draw area
+ *
+ * @~french
+ * Crée une texture d'ombre portée pour le code donné
+ * Le code donné est dessiné dans une texture de dimmensions @a W x @a H
+ * pixels, et une texture contentant l'ombre portée correspondante est
+ * retournée et activée.
+ * De nombreux attributs de l'ombre portée peuvent être contrôlés
+ * individuellement :
+ * @ref shadow_angle, @ref shadow_offset, @ref shadow_color,
+ * @ref shadow_opacity, @ref shadow_blur, @ref shadow_depth,
+ * @ref shadow_filter.
+ *
+ * @param W Largeur de la zone de tracé
+ * @param H Hauteur de la zone de tracé
+ * @param Body Code décrivant le contenu de la zone de tracé
+ */
+shadow_texture(W:integer, H:integer, Body:code); 
+
+/**
+ * @~english
+ * Specify the angle in degrees for drop shadows
+ * @param A Angle in degrees, 0 being towards the top
+ * @see shadow
+ * 
+ * @~french
+ * Indique l'angle en degrés pour les ombres portées
+ * @param A Angle en degrés, 0 étant la verticale (115 par défaut)
+ * @see shadow
+ */
+
+shadow_angle (A:real);
+
+/**
+ * @~english
+ * Specify the distance from the source for the drop shadow
+ * @param D Distance from the origin, defaults to 5
+ * @see shadow
+ * 
+ * @~french
+ * Indique la distance entre la source et l'ombre portée
+ * @param D Distance entre l'ombre portée et la source, 5 par défaut
+ * @see shadow
+ */
+
+shadow_offset (D:real);
+
+/**
+ * @~english
+ * Specify the depth at which the shadow will be drawn
+ * @param D Depth behind the source at which the shadow will be drawn
+ * @see shadow
+ * 
+ * @~french
+ * Indique la profondeur à laquelle l'ombre portée sera dessinée
+ * @param D Profondeur à laquelle l'ombre portée sera dessinée
+ * @see shadow
+ */
+
+shadow_depth (D:real);
+
+/**
+ * @~english
+ * Specify the blur radius for drop shadows
+ * @param R Blur radius for subsequent drop shadows
+ * @see shadow
+ * 
+ * @~french
+ * Indique le rayon de floutage pour les ombres portées
+ * @param R Rayon de floutage pour les ombres portées
+ * @see shadow
+ */
+
+shadow_blur (R:real);
+
+/**
+ * @~english
+ * Specify the color for drop shadows
+ * @param C Color for subsequent drop shadows
+ * @see shadow @see shadow_opacity
+ * 
+ * @~french
+ * Indique la couleur pour les ombres portées
+ * @param C Couleur pour les ombres portées
+ * @see shadow @see shadow_opacity
+ */
+
+shadow_color (C:text);
+
+/**
+ * @~english
+ * Specify the opacity for drop shadows
+ * @param O Opacity for subsequent drop shadows (between 0 and 1)
+ * @see shadow @see shadow_color
+ * 
+ * @~french
+ * Indique l'opacité pour les ombres portées
+ * @param O Opacité pour les ombres portées (entre 0 et 1)
+ * @see shadow @see shadow_color
+ */
+
+shadow_opacity(O:real);
+
+/**
+ * @~english
+ * Specify the color filter identifying shadow casting parts of a picture
+ * @param R Red component between 0 and 1 (default 0)
+ * @param G Green component between 0 and 1 (default 0)
+ * @param B Blue component between 0 and 1 (default 0)
+ * @param A Alpha component between 0 and 1 (default 1)
+ * @see shadow @see shadow_color
+ * 
+ * @~french
+ * Indique le filtre de couleurs identifiant les parties d'un image à ombrer
+ * @param R Composante rouge, entre 0 et 1 (0 par défaut)
+ * @param G Composante verte, entre 0 et 1 (0 par défaut)
+ * @param B Composante bleue, entre 0 et 1 (0 par défaut)
+ * @param A Opacité, entre 0 et 1 (1 par défaut)
+ * @see shadow @see shadow_color
+ */
+
+shadow_filter(R:real, G:real, B:real, A:real);
+
+/**
+ * @~english
+ * Create a new texture by applying a filter to the current one
+ * Renders the current texture through a filter, typically implemented
+ * using a GLSL shader program. The output texture after filtering is
+ * bound to the same texture unit as the inout texture, and replaces
+ * it. As seen by the rendering code, it is always the only active
+ * texture and bound to texture unit 0.
+ *
+ * @param Code Code to execute for the filter
+ *
+@code
+texture_unit 1
+frame_texture 400, 400,
+    color "pink"
+    circle 0, 0, 800 * sin time^2
+texture_unit 2
+movie_texture "my_movie.mov"
+rectangle -400, 0, texture_width, texture_height
+render_to_texture { color "yellow" }
+rectangle 400, 0, texture_width, texture_height
+@endcode
+ * @~french
+ * Crée une nouvelle texture en appliquant un filtre à la texture en cours
+ * Trace la texture en cours à travers un filtre, le plus souvent 
+ * défini à l'aide d'un programme de shader écrit en GLSL. La texture
+ * d'entrée est prise sur l'unité de texture en cours, et la texture
+ * de sortie y est placée après filtrage, remplaçant la texture
+ * d'origine. Pour le code de rendu, en revanche, la texture d'entrée
+ * est la seule active, et est placée dans l'unité de texture 0.
+ *
+ * @param Code Code du filtre
+@code
+texture_unit 1
+frame_texture 400, 400,
+    color "pink"
+    circle 0, 0, 800 * sin time^2
+texture_unit 2
+movie_texture "my_movie.mov"
+rectangle -400, 0, texture_width, texture_height
+render_to_texture { color "yellow" }
+rectangle 400, 0, texture_width, texture_height
+@endcode
+ */
+render_to_texture (Code:tree);
+
+/**
+ * @~english
+ * Set the amount of filtering
+ * Sets the amount of filtering. When the ratio is 1, the filter
+ * applies fully. When the ratio is 0, the original image is
+ * returned.
+ *
+ * @note Normally, only values between 0 and 1 (or 0% and 100%) are
+ * used, but interesting effects may occasionally be achieved with
+ * values that are out of range, e.g. negative values can be used
+ * to enhance colors with the @ref black_and_white filter.
+ *
+ * @param Amount Amount of application for subsequent filters
+ * 
+ * @~french
+ * Fixe le taux d'application des filtres
+ * Fixe le taux d'application des filtres. Quand le taux est à 1, le
+ * filtre s'applique complètement. Quand le taux est à 0, l'image
+ * originale est préservée.
+ *
+ * @note Normalement, les valeurs entre 0 et 1 (ou entre 0% et 100%)
+ * sont les plus utiles. Néanmoins, des effets intéressants peuvent
+ * être obtenus en utilisant des valeurs en dehors de cet intervalle.
+ * Par exemple, des valeurs négatives permettent d'augmenter l'intensité
+ * des couleurs avec le filtre @ref black_and_white.
+ *
+ * @param Amount Taux d'application pour les filtres ultérieurs
+ */
+
+filtering_amount(Amount:real); 
+
+/**
+ * @~english
+ * Return the current filtering amount
+ * @~french
+ * Retourne le taux de filtrage actuel
+ */
+
+filtering_amount(); 
 
 
 /**

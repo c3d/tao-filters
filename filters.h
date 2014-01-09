@@ -28,26 +28,34 @@
 #include "base.h"
 #include "tao/module_api.h"
 #include "filtering.h"
+#include "two_pass_gaussian.h"
 #include "convolution_filter.h"
 #include "black_and_white.h"
 #include "erosion.h"
 
 using namespace XL;
 
+// Filtering amount
+Tree_p filtering_amount(Tree_p self, scale a);
+Real_p filtering_amount(Tree_p self);
+
+// Two-pass gaussian filter
+Tree_p gaussian_pass(uint width, uint height, uint n, bool vertical);
+
 // Convolution filters
-Tree_p gaussian(Tree_p, uint unit, uint width, uint height);
-Tree_p mean(Tree_p, uint unit, uint width, uint height);
-Tree_p emboss(Tree_p, uint unit, uint width, uint height);
-Tree_p sharpness(Tree_p, uint unit, uint width, uint height);
-Tree_p laplacian(Tree_p, uint unit, uint width, uint height);
+Tree_p gaussian(uint width, uint height);
+Tree_p mean(uint width, uint height);
+Tree_p emboss(uint width, uint height);
+Tree_p sharpness(uint width, uint height);
+Tree_p laplacian(uint width, uint height);
 
 // Erosion filter
-Tree_p erode_radius(Tree_p, Real_p r);
-Tree_p erode_color(Tree_p, Real_p r, Real_p g, Real_p b);
-Tree_p erode(Tree_p, uint unit, Real_p x, Real_p y, Real_p threshold);
+Tree_p erode_radius(double r);
+Tree_p erode_color(double r, double g, double b, double a);
+Tree_p erode(double x, double y, double threshold);
 
 // Black and white filter
-Tree_p black_and_white_levels(Tree_p, Real_p r, Real_p g, Real_p b);
-Tree_p black_and_white(Tree_p, uint unit);
+Tree_p black_and_white_levels(double r, double g, double b, double a);
+Tree_p black_and_white();
 
 #endif
