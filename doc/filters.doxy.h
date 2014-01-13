@@ -248,6 +248,7 @@ erode(x:real, y:real, threshold:real);
  * @param W Width of the draw area
  * @param H Height of the draw area
  * @param Body Rendering code for the contents of the draw area
+ *
 @code
 shadow 0, 0, 800, 600,
     color "red"
@@ -256,6 +257,7 @@ shadow 0, 0, 800, 600,
     color "blue"
     text "Hello"
 @endcode
+ *
  * @image html TaoShadow.jpg "Simple shadow"
  *
  * @~french
@@ -274,6 +276,7 @@ shadow 0, 0, 800, 600,
  * @param W Largeur de la zone de tracé
  * @param H Hauteur de la zone de tracé
  * @param Body Code décrivant le contenu de la zone de tracé
+ *
 @code
 shadow 0, 0, 800, 600,
     color "red"
@@ -282,7 +285,8 @@ shadow 0, 0, 800, 600,
     color "blue"
     text "Hello"
 @endcode
- * @image html TaoShadow.jpg "Simple shadow"
+ *
+ * @image html TaoShadow.jpg "Exemple d'ombrage simple"
  */
 shadow(X:real, Y:real, W:integer, H:integer, Body:code); 
 
