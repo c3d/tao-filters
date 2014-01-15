@@ -549,6 +549,50 @@ filtering_amount(Amount:real);
 
 filtering_amount(); 
 
+/**
+ * @~english
+ * Apply transparency to the borders of the current texture.
+ * @p Size controls the width of the transparent border. Use values between
+ * 0.0 and 1.0.
+ * For example:
+ * @~french
+ * Applique de la transparence à la bordure de la texture courante.
+ * @p Size définit la largeur de la bordure transparente, typiquement entre
+ * 0.0 et 1.0.
+ * Exemple :
+ * @~
+ * @include fuzzy_border.ddd
+ *
+ * @image html fuzzy_border.png
+ * @since 1.02 (Tao 1.46)
+ */
+fuzzy_border(Size:real);
+
+/**
+ * @~english
+ * Apply circular transparency to the current texture.
+ * @p X and @p Y define the center of the circle (or more exactly, the ellipse
+ * when the texture is rectangular). @p Radius is the radius of
+ * the circle in texture coordinates, that is, 1.0 is the inscribing circle
+ * and sqrt 2 is the circumscribing one. @p Ratio is the width of the transparent
+ * border, also in texture dimensions.
+ * For example:
+ * @~french
+ * Applique un effet de masquage avec une bordure circulaire à la texture
+ * courante.
+ * @p X et @p Y définissent le centre du cercle (ou plus exactement, de l'ellipse
+ * lorsque la texture est rectangulaire). @p Radius est le rayon du cercle
+ * en coordonnées de texture (1.0 est le cercle inscrit dans la texture, sqrt 2
+ * est le cercle circonscrit). @p Ratio est la largeur de la bordure, dans le même
+ * système de coordonnées.
+ * Exemple :
+ * @~
+ * @include circle_fuzzy_border.ddd
+ *
+ * @image html circle_fuzzy_border.png
+ * @since 1.02 (Tao 1.46)
+ */
+circle_fuzzy_border(X:real, Y:real, Radius:real, Ratio:real);
 
 /**
 * @}
