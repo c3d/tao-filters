@@ -64,6 +64,8 @@ gaussian(Radius:integer);
  *
  * @param RH Rayon du filtre en pixels le long de l'axe horizontal
  * @param RV Rayon du filtre en pixels le long de l'axe vertical
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 gaussian(RH:integer, RV:integer);
 
@@ -164,6 +166,8 @@ black_and_white();
  * Applique un filtre sepia sur la texture en cours
  * @note La formule de conversion peut être ajustée grâce à
  * @ref black_and_white_levels.
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 sepia();
 
@@ -287,6 +291,9 @@ shadow 0, 0, 800, 600,
 @endcode
  *
  * @image html TaoShadow.jpg "Exemple d'ombrage simple"
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 shadow(X:real, Y:real, W:integer, H:integer, Body:code); 
 
@@ -319,6 +326,9 @@ shadow(X:real, Y:real, W:integer, H:integer, Body:code);
  * @param W Largeur de la zone de tracé
  * @param H Hauteur de la zone de tracé
  * @param Body Code décrivant le contenu de la zone de tracé
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 shadow_texture(W:integer, H:integer, Body:code); 
 
@@ -332,6 +342,9 @@ shadow_texture(W:integer, H:integer, Body:code);
  * Indique l'angle en degrés pour les ombres portées
  * @param A Angle en degrés, 0 étant la verticale (115 par défaut)
  * @see shadow
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_angle (A:real);
@@ -346,6 +359,9 @@ shadow_angle (A:real);
  * Indique la distance entre la source et l'ombre portée
  * @param D Distance entre l'ombre portée et la source, 5 par défaut
  * @see shadow
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_offset (D:real);
@@ -360,6 +376,9 @@ shadow_offset (D:real);
  * Indique la profondeur à laquelle l'ombre portée sera dessinée
  * @param D Profondeur à laquelle l'ombre portée sera dessinée
  * @see shadow
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_depth (D:real);
@@ -374,6 +393,9 @@ shadow_depth (D:real);
  * Indique le rayon de floutage pour les ombres portées
  * @param R Rayon de floutage pour les ombres portées
  * @see shadow
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_blur (R:real);
@@ -388,6 +410,9 @@ shadow_blur (R:real);
  * Indique la couleur pour les ombres portées
  * @param C Couleur pour les ombres portées
  * @see shadow @see shadow_opacity
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_color (C:text);
@@ -402,6 +427,9 @@ shadow_color (C:text);
  * Indique l'opacité pour les ombres portées
  * @param O Opacité pour les ombres portées (entre 0 et 1)
  * @see shadow @see shadow_color
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_opacity(O:real);
@@ -422,6 +450,9 @@ shadow_opacity(O:real);
  * @param B Composante bleue, entre 0 et 1 (0 par défaut)
  * @param A Opacité, entre 0 et 1 (1 par défaut)
  * @see shadow @see shadow_color
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 shadow_filter(R:real, G:real, B:real, A:real);
@@ -499,6 +530,9 @@ render_to_texture (Code:tree);
  * des couleurs avec le filtre @ref black_and_white.
  *
  * @param Amount Taux d'application pour les filtres ultérieurs
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 filtering_amount(Amount:real); 
@@ -508,6 +542,9 @@ filtering_amount(Amount:real);
  * Return the current filtering amount
  * @~french
  * Retourne le taux de filtrage actuel
+ *
+ * @~
+ * @since 1.018 (Tao 1.45)
  */
 
 filtering_amount(); 
