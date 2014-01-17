@@ -21,8 +21,6 @@
 #include "filtering.h"
 
 const Tao::ModuleApi *Filter::tao = NULL;
-float Filter::amount = 1.0;
-
 
 // ============================================================================
 //
