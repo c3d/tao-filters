@@ -23,16 +23,15 @@
 #include "tao/module_api.h"
 #include "tao/tao_gl.h"
 #include "tao/graphic_state.h"
-#include <QObject>
 
 using namespace std;
 using namespace Tao;
 
 
-struct Filter : public QObject
+struct Filter
 {
     Filter(const QGLContext **pcontext = NULL);
-    ~Filter();
+    virtual ~Filter();
 
     // Draw filter
     virtual void    Draw();
@@ -53,8 +52,7 @@ public:
 public:
     // Pointer to Tao functions
     static const Tao::ModuleApi *tao;
+    static float                 amount;
 };
-
-
 
 #endif

@@ -28,21 +28,23 @@
 
 bool                  BlackAndWhite::failed = false;
 QGLShaderProgram*     BlackAndWhite::pgm = NULL;
-std::map<text, GLint> BlackAndWhite::uniforms;
+uint                  BlackAndWhite::colorMapID = 0;
+uint                  BlackAndWhite::levelsID = 0;
+uint                  BlackAndWhite::amountID = 0;
 const QGLContext*     BlackAndWhite::context = NULL;
 
 
 #define GL (*graphic_state)
 
-BlackAndWhite::BlackAndWhite(int unit)
+BlackAndWhite::BlackAndWhite(GLfloat color_levels[4])
 // ----------------------------------------------------------------------------
 //   Construction
 // ----------------------------------------------------------------------------
-    : Filter(&context), unit(unit)
+    : Filter(&context)
 {
     IFTRACE(filters)
-            debug() << "Create black and white filter" << "\n";
-
+        debug() << "Create black and white filter" << "\n";
+    setLevels(color_levels);
     checkGLContext();
 }
 
@@ -51,11 +53,10 @@ BlackAndWhite::~BlackAndWhite()
 // ----------------------------------------------------------------------------
 //   Destruction
 // ----------------------------------------------------------------------------
-{
-}
+{}
 
 
-void BlackAndWhite::setLevels(GLfloat color_levels[3])
+void BlackAndWhite::setLevels(GLfloat color_levels[4])
 // ----------------------------------------------------------------------------
 //   Set color levels
 // ----------------------------------------------------------------------------
@@ -63,6 +64,7 @@ void BlackAndWhite::setLevels(GLfloat color_levels[3])
     levels[0] = color_levels[0];
     levels[1] = color_levels[1];
     levels[2] = color_levels[2];
+    levels[3] = color_levels[3];
 }
 
 
@@ -86,11 +88,11 @@ void BlackAndWhite::Draw()
         tao->SetShader(prg_id);
 
         // Set texture parameters
-        GL.Uniform(uniforms["texUnit"], unit);
-        GL.Uniform(uniforms["colorMap"], unit);
+        GL.Uniform(colorMapID, 0);
 
-        // Set erosion parameters
-        GL.Uniform3fv(uniforms["levels"], 1, levels);
+        // Set colorization parameters
+        GL.Uniform4fv(levelsID, 1, levels);
+        GL.Uniform(amountID, amount);
     }
 }
 
@@ -128,12 +130,8 @@ void BlackAndWhite::createShaders()
                 "void main()"
                 "{"
                 "   gl_Position = ftransform();"
-
-                "   /* Compute texture coordinates */"
                 "   gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-                "   gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;"
-                "   gl_TexCoord[2] = gl_TextureMatrix[2] * gl_MultiTexCoord2;"
-                "   gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;"
+                "   gl_FrontColor = gl_BackColor = gl_Color;"
                 "}";
 
         static string fSrc =
@@ -151,32 +149,17 @@ void BlackAndWhite::createShaders()
                 "**                                                                               \n"
                 "********************************************************************************/\n"
                 "/* Filter parameters */"
-                "uniform vec3 levels;"
-
-                "uniform int       texUnit;"
+                "uniform vec4 levels;"
+                "uniform float amount;"
                 "uniform sampler2D colorMap;"
-
                 "void main()"
                 "{"
                 "   /* Get the correct texture coordinates */"
-                "   vec2 texCoords = vec2(0.0);"
-                "   if(texUnit == 0)"
-                "       texCoords = gl_TexCoord[0].st;"
-                "   if(texUnit == 1)"
-                "       texCoords = gl_TexCoord[1].st;"
-                "   if(texUnit == 2)"
-                "       texCoords = gl_TexCoord[2].st;"
-                "   if(texUnit == 3)"
-                "       texCoords = gl_TexCoord[3].st;"
-
-                "   vec4 color = texture2D( colorMap, texCoords );"
-
-                "   /* Define color levels */"
-                "   vec3 red   = vec3(color.r, color.r, color.r);"
-                "   vec3 green = vec3(color.g, color.g, color.g);"
-                "   vec3 blue  = vec3(color.b, color.b, color.b);"
-
-                "   gl_FragColor = vec4(levels.r * red + levels.g * green +  levels.b * blue, 1.0);"
+                "   vec2 texCoords = gl_TexCoord[0].st;"
+                "   vec4 color = texture2D(colorMap, texCoords);"
+                "   float bw = dot(levels, color);"
+                "   vec4 tinted = vec4(bw * gl_Color.rgb, gl_Color.a);"
+                "   gl_FragColor = mix(color, tinted, amount);"
                 "}";
 
         if (pgm->addShaderFromSourceCode(QGLShader::Vertex, vSrc.c_str()))
@@ -208,9 +191,9 @@ void BlackAndWhite::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            uniforms["texUnit"]  = glGetUniformLocation(id, "texUnit");
-            uniforms["colorMap"] = glGetUniformLocation(id, "colorMap");
-            uniforms["levels"]   = glGetUniformLocation(id, "levels");
+            colorMapID = glGetUniformLocation(id, "colorMap");
+            levelsID   = glGetUniformLocation(id, "levels");
+            amountID   = glGetUniformLocation(id, "amount");
         }
     }
 }
