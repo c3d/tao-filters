@@ -278,25 +278,26 @@ circle_fuzzy_border X:real, Y:real, Radius:real, Ratio:real ->
 //
 // ============================================================================
 
-TEXTURE_WIDTH   -> 0
-TEXTURE_HEIGHT  -> 0
-TEXTURE_ID      -> 0
-
-render_to_texture RENDER_CODE ->
+render_to_texture Body ->
 // ----------------------------------------------------------------------------
-//   Render 'RENDER_CODE' into a new texture
+//   Render 'Body' into a new texture
+// ----------------------------------------------------------------------------
+//   We invoke an intermediate function to stash texture values in a closure
+
+    render_to_texture_internal texture, texture_width, texture_height, Body
+
+
+render_to_texture_internal T:integer, TW:integer, TH:integer, Body ->
+// ----------------------------------------------------------------------------
+//   Render 'Body' into a new texture - Helper function
 // ----------------------------------------------------------------------------
 //   Note that the texture is rendered in the current texture unit, but
 //   that within the body of frame_texture, we render with a single
 //   texture and map this unique texture to texture 0.
 
-    TEXTURE_WIDTH := texture_width
-    TEXTURE_HEIGHT := texture_height
-    TEXTURE_ID := texture
-
-    frame_texture TEXTURE_WIDTH, TEXTURE_HEIGHT,
+    frame_texture TW, TH,
         color "white"
-        texture TEXTURE_ID
+        texture T
         blend_function "ONE", "ZERO"
-        RENDER_CODE
-        rectangle 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT
+        Body
+        rectangle 0, 0, TW, TH
