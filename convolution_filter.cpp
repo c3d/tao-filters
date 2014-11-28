@@ -40,8 +40,6 @@ uint                  ConvolutionFilter::amountID = 0;
 uint                  ConvolutionFilter::kernelID = 0;
 const QGLContext*     ConvolutionFilter::context = NULL;
 
-
-#define GL (*graphic_state)
 DLL_PUBLIC Tao::GraphicState * graphic_state = NULL;
 
 
@@ -237,12 +235,12 @@ void ConvolutionFilter::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            widthID    = glGetUniformLocation(id, "pixel_width");
-            heightID   = glGetUniformLocation(id, "pixel_height");
-            colorMapID = glGetUniformLocation(id, "colorMap");
-            levelID    = glGetUniformLocation(id, "level");
-            amountID   = glGetUniformLocation(id, "amount");
-            kernelID   = glGetUniformLocation(id, "kernel");
+            widthID    = GL.GetUniformLocation(id, "pixel_width");
+            heightID   = GL.GetUniformLocation(id, "pixel_height");
+            colorMapID = GL.GetUniformLocation(id, "colorMap");
+            levelID    = GL.GetUniformLocation(id, "level");
+            amountID   = GL.GetUniformLocation(id, "amount");
+            kernelID   = GL.GetUniformLocation(id, "kernel");
         }
     }
 }

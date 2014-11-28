@@ -36,7 +36,6 @@ uint                  Erosion::colorID = 0;
 uint                  Erosion::centerID = 0;
 const QGLContext*     Erosion::context = NULL;
 
-#define GL (*graphic_state)
 
 Erosion::Erosion(float x, float y, float threshold)
 // ----------------------------------------------------------------------------
@@ -222,13 +221,13 @@ void Erosion::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            colorMapID  = glGetUniformLocation(id, "colorMap");
+            colorMapID  = GL.GetUniformLocation(id, "colorMap");
 
-            radiusID    = glGetUniformLocation(id, "radius");
-            amountID    = glGetUniformLocation(id, "amount");
-            thresholdID = glGetUniformLocation(id, "threshold");
-            centerID    = glGetUniformLocation(id, "center");
-            colorID     = glGetUniformLocation(id, "color");
+            radiusID    = GL.GetUniformLocation(id, "radius");
+            amountID    = GL.GetUniformLocation(id, "amount");
+            thresholdID = GL.GetUniformLocation(id, "threshold");
+            centerID    = GL.GetUniformLocation(id, "center");
+            colorID     = GL.GetUniformLocation(id, "color");
         }
     }
 }

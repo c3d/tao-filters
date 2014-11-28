@@ -32,7 +32,6 @@ QGLShaderProgram*       TwoPassGaussian::pgm[MAX_SAMPLES] = { NULL };
 uint                    TwoPassGaussian::textureID[MAX_SAMPLES] = { 0 };
 uint                    TwoPassGaussian::deltaID[MAX_SAMPLES] = { 0 };
 
-#define GL (*graphic_state)
 
 TwoPassGaussian::TwoPassGaussian(uint w, uint h, uint n, bool vert)
 // ----------------------------------------------------------------------------
@@ -142,8 +141,8 @@ QGLShaderProgram *TwoPassGaussian::shader()
         }
 
         uint pid = p->programId();
-        textureID[s]   = glGetUniformLocation(pid, "texture");
-        deltaID[s]     = glGetUniformLocation(pid, "delta");
+        textureID[s]   = GL.GetUniformLocation(pid, "texture");
+        deltaID[s]     = GL.GetUniformLocation(pid, "delta");
 
         // Store for next time
         pgm[s] = p;

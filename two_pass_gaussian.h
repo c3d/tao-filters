@@ -27,7 +27,6 @@
 #include "tao/tao_gl.h"
 #include "filtering.h"
 
-
 struct TwoPassGaussian : public Filter
 // ----------------------------------------------------------------------------
 //    Horizontal or vertical gaussian filter

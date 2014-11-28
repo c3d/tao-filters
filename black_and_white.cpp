@@ -34,8 +34,6 @@ uint                  BlackAndWhite::amountID = 0;
 const QGLContext*     BlackAndWhite::context = NULL;
 
 
-#define GL (*graphic_state)
-
 BlackAndWhite::BlackAndWhite(GLfloat color_levels[4])
 // ----------------------------------------------------------------------------
 //   Construction
@@ -191,9 +189,9 @@ void BlackAndWhite::createShaders()
 
             // Save uniform locations
             uint id = pgm->programId();
-            colorMapID = glGetUniformLocation(id, "colorMap");
-            levelsID   = glGetUniformLocation(id, "levels");
-            amountID   = glGetUniformLocation(id, "amount");
+            colorMapID = GL.GetUniformLocation(id, "colorMap");
+            levelsID   = GL.GetUniformLocation(id, "levels");
+            amountID   = GL.GetUniformLocation(id, "amount");
         }
     }
 }
