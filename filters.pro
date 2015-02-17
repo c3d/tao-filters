@@ -32,11 +32,6 @@ SOURCES = filters.cpp \
           black_and_white.cpp \
           erosion.cpp
 
-win32 {
-    DEFINES     += GLEW_STATIC
-    SOURCES     += $${TAOTOPSRC}/tao/include/tao/GL/glew.c
-}
-
 TBL_SOURCES  = filters.tbl
 
 OTHER_FILES = filters.xl filters.tbl traces.tbl
