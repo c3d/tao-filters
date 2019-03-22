@@ -1,3 +1,41 @@
+// *****************************************************************************
+// filters.doxy.h                                                  Tao3D project
+// *****************************************************************************
+//
+// File description:
+//
+//
+//
+//
+//
+//
+//
+//
+// *****************************************************************************
+// This software is licensed under the GNU General Public License v3
+// (C) 2011-2014, Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+// (C) 2011-2013, Catherine Burvelle <catherine@taodyne.com>
+// (C) 2011-2014, Christophe de Dinechin <christophe@taodyne.com>
+// (C) 2011-2014, Jérôme Forissier <jerome@taodyne.com>
+// (C) 2011-2014, Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+// (C) 2011, Baptiste Soulisse <baptiste.soulisse@taodyne.com>
+// *****************************************************************************
+// This file is part of Tao3D
+//
+// Tao3D is free software: you can r redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Tao3D is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Tao3D, in a file named COPYING.
+// If not, see <https://www.gnu.org/licenses/>.
+// *****************************************************************************
 /**
  * @~english
  * @taomoduledescription{Filters, Filters}
@@ -295,7 +333,7 @@ shadow 0, 0, 800, 600,
  * @~
  * @since 1.018 (Tao 1.45)
  */
-shadow(X:real, Y:real, W:integer, H:integer, Body:code); 
+shadow(X:real, Y:real, W:integer, H:integer, Body:code);
 
 
 /**
@@ -330,14 +368,14 @@ shadow(X:real, Y:real, W:integer, H:integer, Body:code);
  * @~
  * @since 1.018 (Tao 1.45)
  */
-shadow_texture(W:integer, H:integer, Body:code); 
+shadow_texture(W:integer, H:integer, Body:code);
 
 /**
  * @~english
  * Specify the angle in degrees for drop shadows
  * @param A Angle in degrees, 0 being towards the top
  * @see shadow
- * 
+ *
  * @~french
  * Indique l'angle en degrés pour les ombres portées
  * @param A Angle en degrés, 0 étant la verticale (115 par défaut)
@@ -354,7 +392,7 @@ shadow_angle (A:real);
  * Specify the distance from the source for the drop shadow
  * @param D Distance from the origin, defaults to 5
  * @see shadow
- * 
+ *
  * @~french
  * Indique la distance entre la source et l'ombre portée
  * @param D Distance entre l'ombre portée et la source, 5 par défaut
@@ -371,7 +409,7 @@ shadow_offset (D:real);
  * Specify the depth at which the shadow will be drawn
  * @param D Depth behind the source at which the shadow will be drawn
  * @see shadow
- * 
+ *
  * @~french
  * Indique la profondeur à laquelle l'ombre portée sera dessinée
  * @param D Profondeur à laquelle l'ombre portée sera dessinée
@@ -388,7 +426,7 @@ shadow_depth (D:real);
  * Specify the blur radius for drop shadows
  * @param R Blur radius for subsequent drop shadows
  * @see shadow
- * 
+ *
  * @~french
  * Indique le rayon de floutage pour les ombres portées
  * @param R Rayon de floutage pour les ombres portées
@@ -405,7 +443,7 @@ shadow_blur (R:real);
  * Specify the color for drop shadows
  * @param C Color for subsequent drop shadows
  * @see shadow @see shadow_opacity
- * 
+ *
  * @~french
  * Indique la couleur pour les ombres portées
  * @param C Couleur pour les ombres portées
@@ -422,7 +460,7 @@ shadow_color (C:text);
  * Specify the opacity for drop shadows
  * @param O Opacity for subsequent drop shadows (between 0 and 1)
  * @see shadow @see shadow_color
- * 
+ *
  * @~french
  * Indique l'opacité pour les ombres portées
  * @param O Opacité pour les ombres portées (entre 0 et 1)
@@ -442,7 +480,7 @@ shadow_opacity(O:real);
  * @param B Blue component between 0 and 1 (default 0)
  * @param A Alpha component between 0 and 1 (default 1)
  * @see shadow @see shadow_color
- * 
+ *
  * @~french
  * Indique le filtre de couleurs identifiant les parties d'un image à ombrer
  * @param R Composante rouge, entre 0 et 1 (0 par défaut)
@@ -481,7 +519,7 @@ rectangle 400, 0, texture_width, texture_height
 @endcode
  * @~french
  * Crée une nouvelle texture en appliquant un filtre à la texture en cours
- * Trace la texture en cours à travers un filtre, le plus souvent 
+ * Trace la texture en cours à travers un filtre, le plus souvent
  * défini à l'aide d'un programme de shader écrit en GLSL. La texture
  * d'entrée est prise sur l'unité de texture en cours, et la texture
  * de sortie y est placée après filtrage, remplaçant la texture
@@ -516,7 +554,7 @@ render_to_texture (Code:tree);
  * to enhance colors with the @ref black_and_white filter.
  *
  * @param Amount Amount of application for subsequent filters
- * 
+ *
  * @~french
  * Fixe le taux d'application des filtres
  * Fixe le taux d'application des filtres. Quand le taux est à 1, le
@@ -535,7 +573,7 @@ render_to_texture (Code:tree);
  * @since 1.018 (Tao 1.45)
  */
 
-filtering_amount(Amount:real); 
+filtering_amount(Amount:real);
 
 /**
  * @~english
@@ -547,7 +585,7 @@ filtering_amount(Amount:real);
  * @since 1.018 (Tao 1.45)
  */
 
-filtering_amount(); 
+filtering_amount();
 
 /**
  * @~english
